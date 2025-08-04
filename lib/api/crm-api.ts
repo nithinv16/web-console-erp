@@ -1,4 +1,4 @@
-import { supabase } from '../supabase';
+import { createClient } from '../supabase';
 import { Database } from '../../types/database';
 
 type Customer = Database['public']['Tables']['customers']['Row'];
@@ -152,6 +152,7 @@ export class CRMApi {
   static async getDashboardData(companyId: string) {
     try {
       // Get leads count
+      const supabase = createClient();
       const { count: totalLeads } = await supabase
         .from('leads')
         .select('*', { count: 'exact', head: true })

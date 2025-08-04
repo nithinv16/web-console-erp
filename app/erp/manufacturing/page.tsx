@@ -33,7 +33,6 @@ import {
   CircularProgress
 } from '@mui/material'
 import {
-  Precision,
   Add,
   TrendingUp,
   TrendingDown,
@@ -176,7 +175,7 @@ export default function ManufacturingPage() {
   const getWorkCenterIcon = (type: string) => {
     switch (type?.toLowerCase()) {
       case 'assembly': return <Build />
-      case 'machining': return <Precision />
+      case 'machining': return <Engineering />
       case 'quality': return <CheckCircle />
       case 'packaging': return <Inventory />
       default: return <Factory />

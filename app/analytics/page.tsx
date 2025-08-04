@@ -150,13 +150,28 @@ export default function AnalyticsPage() {
       const lowStockProducts = products.filter(p => (p.stock_available || 0) < 10).length;
 
       setAnalytics({
-        totalRevenue,
-        totalOrders: orders.length,
-        totalProducts: products.length,
-        totalCustomers: uniqueCustomers,
-        averageOrderValue,
-        revenueGrowth,
-        lowStockProducts
+        revenue: {
+          total: totalRevenue,
+          growth: revenueGrowth,
+          data: [],
+          labels: []
+        },
+        orders: {
+          total: orders.length,
+          growth: 0,
+          data: [],
+          pending: orders.filter(o => o.status === 'pending').length
+        },
+        products: {
+          total: products.length,
+          lowStock: lowStockProducts,
+          topSelling: []
+        },
+        customers: {
+          total: uniqueCustomers,
+          new: 0,
+          repeat: 0
+        }
       });
     }
   };
