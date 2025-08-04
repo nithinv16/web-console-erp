@@ -2,6 +2,39 @@
 
 A comprehensive web-based management console for the DukaaOn marketplace platform, built with Next.js, Material-UI, and Supabase.
 
+## 🚀 Quick Deployment to AWS Amplify
+
+This repository is ready for immediate deployment to AWS Amplify!
+
+### Prerequisites
+- GitHub account
+- AWS account with Amplify access
+- Supabase project (for database)
+
+### Deployment Steps
+
+1. **Push to GitHub** (if not already done):
+   ```bash
+   git remote add origin https://github.com/yourusername/your-repo-name.git
+   git push -u origin main
+   ```
+
+2. **Deploy with AWS Amplify**:
+   - Go to [AWS Amplify Console](https://console.aws.amazon.com/amplify/)
+   - Click "New app" → "Host web app"
+   - Connect your GitHub repository
+   - Amplify will auto-detect the `amplify.yml` configuration
+   - Add environment variables:
+     - `NEXT_PUBLIC_SUPABASE_URL`
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - Deploy!
+
+✅ **Included for Amplify**:
+- `amplify.yml` - Build configuration
+- `.gitignore` - Proper exclusions
+- `package.json` - Build scripts
+- Environment variable documentation
+
 ## Features
 
 ### 🏠 Dashboard
