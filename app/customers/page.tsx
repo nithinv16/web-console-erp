@@ -129,10 +129,10 @@ export default function CustomersPage() {
         if (existingCustomer) {
           existingCustomer.total_orders += 1;
           existingCustomer.total_spent += order.total_amount || 0;
-          existingCustomer.lastOrderDate = new Date(Math.max(
-            new Date(existingCustomer.lastOrderDate).getTime(),
+          existingCustomer.last_order_date = new Date(Math.max(
+            new Date(existingCustomer.last_order_date).getTime(),
             new Date(order.created_at).getTime()
-          ));
+          )).toISOString();
         } else {
           customerMap.set(customerId, {
             id: customerId,
