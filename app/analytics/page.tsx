@@ -384,20 +384,20 @@ export default function AnalyticsPage() {
                       Total Revenue
                     </Typography>
                     <Typography variant="h4">
-                      ₹{analytics?.totalRevenue.toLocaleString() || 0}
+                      ₹{analytics?.revenue?.total?.toLocaleString() || 0}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                      {(analytics?.revenueGrowth || 0) >= 0 ? (
+                      {(analytics?.revenue?.growth || 0) >= 0 ? (
                         <TrendingUp color="success" fontSize="small" />
                       ) : (
                         <TrendingDown color="error" fontSize="small" />
                       )}
                       <Typography
                         variant="body2"
-                        color={(analytics?.revenueGrowth || 0) >= 0 ? 'success.main' : 'error.main'}
+                        color={(analytics?.revenue?.growth || 0) >= 0 ? 'success.main' : 'error.main'}
                         sx={{ ml: 0.5 }}
                       >
-                        {Math.abs(analytics?.revenueGrowth || 0).toFixed(1)}%
+                        {Math.abs(analytics?.revenue?.growth || 0).toFixed(1)}%
                       </Typography>
                     </Box>
                   </Box>
@@ -415,10 +415,10 @@ export default function AnalyticsPage() {
                       Total Orders
                     </Typography>
                     <Typography variant="h4">
-                      {analytics?.totalOrders || 0}
+                      {analytics?.orders?.total || 0}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Avg: ₹{analytics?.averageOrderValue.toLocaleString() || 0}
+                      Avg: ₹{analytics?.orders?.average?.toLocaleString() || 0}
                     </Typography>
                   </Box>
                   <ShoppingCart color="primary" sx={{ fontSize: 40 }} />
@@ -435,7 +435,7 @@ export default function AnalyticsPage() {
                       Total Customers
                     </Typography>
                     <Typography variant="h4">
-                      {analytics?.totalCustomers || 0}
+                      {analytics?.customers?.total || 0}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Active customers
@@ -455,12 +455,12 @@ export default function AnalyticsPage() {
                       Products
                     </Typography>
                     <Typography variant="h4">
-                      {analytics?.totalProducts || 0}
+                      {analytics?.products?.total || 0}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                       <Warning color="warning" fontSize="small" />
                       <Typography variant="body2" color="warning.main" sx={{ ml: 0.5 }}>
-                        {analytics?.lowStockProducts || 0} low stock
+                        {analytics?.products?.lowStock || 0} low stock
                       </Typography>
                     </Box>
                   </Box>

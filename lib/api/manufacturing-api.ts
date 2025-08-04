@@ -1,4 +1,6 @@
-import { supabase } from '../supabase';
+import { createClient } from '../supabase';
+
+const supabase = createClient();
 import { Database } from '../../types/database';
 
 type WorkOrder = Database['public']['Tables']['work_orders']['Row'];
