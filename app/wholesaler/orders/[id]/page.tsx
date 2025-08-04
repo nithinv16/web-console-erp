@@ -47,7 +47,6 @@ import {
   Schedule,
   Inventory,
   Receipt,
-  LocalShipping,
   Done,
   HourglassEmpty,
   Error as ErrorIcon
