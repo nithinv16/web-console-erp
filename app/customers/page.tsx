@@ -127,8 +127,8 @@ export default function CustomersPage() {
         const existingCustomer = customerMap.get(customerId);
 
         if (existingCustomer) {
-          existingCustomer.totalOrders += 1;
-          existingCustomer.totalSpent += order.total_amount || 0;
+          existingCustomer.total_orders += 1;
+          existingCustomer.total_spent += order.total_amount || 0;
           existingCustomer.lastOrderDate = new Date(Math.max(
             new Date(existingCustomer.lastOrderDate).getTime(),
             new Date(order.created_at).getTime()
@@ -136,21 +136,21 @@ export default function CustomersPage() {
         } else {
           customerMap.set(customerId, {
             id: customerId,
-            businessName: retailer.business_name || 'Unknown Business',
-            ownerName: retailer.owner_name || 'Unknown Owner',
+            business_name: retailer.business_name || 'Unknown Business',
+            owner_name: retailer.owner_name || 'Unknown Owner',
             email: retailer.email || '',
-            phone: retailer.contact_phone || '',
+            phone_number: retailer.contact_phone || '',
             address: retailer.address || '',
-            totalOrders: 1,
-            totalSpent: order.total_amount || 0,
-            lastOrderDate: new Date(order.created_at),
+            total_orders: 1,
+            total_spent: order.total_amount || 0,
+            last_order_date: new Date(order.created_at).toISOString(),
             status: 'active'
           });
         }
       });
 
       const customersArray = Array.from(customerMap.values())
-        .sort((a, b) => b.totalSpent - a.totalSpent);
+        .sort((a, b) => b.total_spent - a.total_spent);
 
       setCustomers(customersArray);
     } catch (error) {
@@ -200,20 +200,20 @@ export default function CustomersPage() {
   };
 
   const filteredCustomers = customers.filter(customer =>
-    customer.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.phone.includes(searchTerm)
+    customer.business_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.owner_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.phone_number.includes(searchTerm)
   );
 
   const getCustomerStats = () => {
     return {
       total: customers.length,
       active: customers.filter(c => {
-        const daysSinceLastOrder = (Date.now() - c.lastOrderDate.getTime()) / (1000 * 60 * 60 * 24);
+        const daysSinceLastOrder = (Date.now() - new Date(c.last_order_date).getTime()) / (1000 * 60 * 60 * 24);
         return daysSinceLastOrder <= 30;
       }).length,
       topSpender: customers.length > 0 ? customers[0] : null,
-      totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0)
+      totalRevenue: customers.reduce((sum, c) => sum + c.total_spent, 0)
     };
   };
 
@@ -308,10 +308,10 @@ export default function CustomersPage() {
                       Top Spender
                     </Typography>
                     <Typography variant="h6" noWrap>
-                      {stats.topSpender?.businessName || 'N/A'}
+                      {stats.topSpender?.business_name || 'N/A'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      ₹{stats.topSpender?.totalSpent.toLocaleString() || 0}
+                      ₹{stats.topSpender?.total_spent.toLocaleString() || 0}
                     </Typography>
                   </Box>
                   <Star color="warning" sx={{ fontSize: 40 }} />
@@ -374,31 +374,31 @@ export default function CustomersPage() {
                   </TableHead>
                   <TableBody>
                     {filteredCustomers.map((customer) => {
-                      const tier = getCustomerTier(customer.totalSpent);
-                      const daysSinceLastOrder = getDaysSinceLastOrder(customer.lastOrderDate);
+                      const tier = getCustomerTier(customer.total_spent);
+                      const daysSinceLastOrder = getDaysSinceLastOrder(new Date(customer.last_order_date));
                       
                       return (
                         <TableRow key={customer.id} hover>
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                               <Avatar sx={{ width: 40, height: 40 }}>
-                                {customer.businessName.charAt(0)}
+                                {customer.business_name.charAt(0)}
                               </Avatar>
                               <Box>
                                 <Typography variant="subtitle2">
-                                  {customer.businessName}
+                                  {customer.business_name}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                  {customer.ownerName}
+                                  {customer.owner_name}
                                 </Typography>
                               </Box>
                             </Box>
                           </TableCell>
                           <TableCell>
                             <Box>
-                              {customer.phone && (
+                              {customer.phone_number && (
                                 <Typography variant="body2">
-                                  📞 {customer.phone}
+                                  📞 {customer.phone_number}
                                 </Typography>
                               )}
                               {customer.email && (
@@ -415,7 +415,7 @@ export default function CustomersPage() {
                           </TableCell>
                           <TableCell>
                             <Typography variant="subtitle2">
-                              {customer.totalOrders}
+                              {customer.total_orders}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               orders
@@ -423,7 +423,7 @@ export default function CustomersPage() {
                           </TableCell>
                           <TableCell>
                             <Typography variant="subtitle2">
-                              ₹{customer.totalSpent.toLocaleString()}
+                              ₹{customer.total_spent.toLocaleString()}
                             </Typography>
                           </TableCell>
                           <TableCell>
@@ -436,7 +436,7 @@ export default function CustomersPage() {
                           </TableCell>
                           <TableCell>
                             <Typography variant="body2">
-                              {customer.lastOrderDate.toLocaleDateString()}
+                              {new Date(customer.last_order_date).toLocaleDateString()}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               {daysSinceLastOrder === 0 ? 'Today' : 
@@ -473,7 +473,7 @@ export default function CustomersPage() {
             </ListItemIcon>
             <ListItemText>View Details</ListItemText>
           </MenuItem>
-          {menuCustomer?.phone && (
+          {menuCustomer?.phone_number && (
             <MenuItem onClick={handleMenuClose}>
               <ListItemIcon>
                 <Phone fontSize="small" />
@@ -499,20 +499,20 @@ export default function CustomersPage() {
           <DialogTitle>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Avatar sx={{ width: 48, height: 48 }}>
-                {selectedCustomer?.businessName.charAt(0)}
+                {selectedCustomer?.business_name.charAt(0)}
               </Avatar>
               <Box>
                 <Typography variant="h6">
-                  {selectedCustomer?.businessName}
+                  {selectedCustomer?.business_name}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {selectedCustomer?.ownerName}
+                  {selectedCustomer?.owner_name}
                 </Typography>
               </Box>
               <Box sx={{ ml: 'auto' }}>
                 <Chip
-                  label={getCustomerTier(selectedCustomer?.totalSpent || 0).label}
-                  color={getCustomerTier(selectedCustomer?.totalSpent || 0).color}
+                  label={getCustomerTier(selectedCustomer?.total_spent || 0).label}
+                  color={getCustomerTier(selectedCustomer?.total_spent || 0).color}
                   variant="outlined"
                 />
               </Box>
@@ -536,10 +536,10 @@ export default function CustomersPage() {
                         Contact Information
                       </Typography>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        {selectedCustomer?.phone && (
+                        {selectedCustomer?.phone_number && (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Phone fontSize="small" color="action" />
-                            <Typography>{selectedCustomer.phone}</Typography>
+                            <Typography>{selectedCustomer.phone_number}</Typography>
                           </Box>
                         )}
                         {selectedCustomer?.email && (
@@ -567,22 +567,22 @@ export default function CustomersPage() {
                       <Grid container spacing={2}>
                         <Grid item xs={6}>
                           <Typography variant="body2" color="text.secondary">Total Orders</Typography>
-                          <Typography variant="h5">{selectedCustomer?.totalOrders}</Typography>
+                          <Typography variant="h5">{selectedCustomer?.total_orders}</Typography>
                         </Grid>
                         <Grid item xs={6}>
                           <Typography variant="body2" color="text.secondary">Total Spent</Typography>
-                          <Typography variant="h5">₹{selectedCustomer?.totalSpent.toLocaleString()}</Typography>
+                          <Typography variant="h5">₹{selectedCustomer?.total_spent.toLocaleString()}</Typography>
                         </Grid>
                         <Grid item xs={6}>
                           <Typography variant="body2" color="text.secondary">Average Order</Typography>
                           <Typography variant="h6">
-                            ₹{selectedCustomer ? Math.round(selectedCustomer.totalSpent / selectedCustomer.totalOrders).toLocaleString() : 0}
+                            ₹{selectedCustomer ? Math.round(selectedCustomer.total_spent / selectedCustomer.total_orders).toLocaleString() : 0}
                           </Typography>
                         </Grid>
                         <Grid item xs={6}>
                           <Typography variant="body2" color="text.secondary">Last Order</Typography>
                           <Typography variant="h6">
-                            {selectedCustomer?.lastOrderDate.toLocaleDateString()}
+                            {selectedCustomer ? new Date(selectedCustomer.last_order_date).toLocaleDateString() : 'N/A'}
                           </Typography>
                         </Grid>
                       </Grid>
