@@ -649,7 +649,7 @@ export default function CustomersPage() {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setCustomerDetailsOpen(false)}>Close</Button>
-            {selectedCustomer?.phone && (
+            {selectedCustomer?.phone_number && (
               <Button startIcon={<Phone />} variant="outlined">
                 Call Customer
               </Button>
