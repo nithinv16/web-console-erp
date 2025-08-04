@@ -50,7 +50,7 @@ import {
 import { useAuth } from '../../../contexts/AuthContext'
 import { createClient } from '../../../lib/supabase'
 import { useRouter } from 'next/navigation'
-import { MainLayout } from '../../../components/Layout'
+import { MainLayout } from '../../../components/layout'
 
 interface OrderItem {
   id: string

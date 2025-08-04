@@ -38,7 +38,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { createClient } from '../../../lib/supabase';
 import { useAuth } from '../../../contexts/AuthContext';
-import { MainLayout } from '../../../components/Layout';
+import { MainLayout } from '../../../components/layout';
 
 interface Retailer {
   id: string;

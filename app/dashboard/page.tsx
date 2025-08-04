@@ -51,7 +51,7 @@ import { useOrderNotifications } from '../../contexts/OrderNotificationContext';
 import { createClient } from '../../lib/supabase';
 import { BusinessStats, Product, Order } from '../../types';
 import { toast } from 'react-hot-toast';
-import { MainLayout } from '../../components/Layout';
+import { MainLayout } from '../../components/layout';
 
 interface QuickAddItem {
   id: string;

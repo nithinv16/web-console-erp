@@ -53,7 +53,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { createClient } from '../../lib/supabase';
 import { Analytics, Product, Order } from '../../types';
 import { toast } from 'react-hot-toast';
-import { MainLayout } from '../../components/Layout';
+import { MainLayout } from '../../components/layout';
 
 interface ChartData {
   name: string;

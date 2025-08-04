@@ -58,7 +58,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { createClient } from '../../lib/supabase';
 import { Order } from '../../types';
 import { toast } from 'react-hot-toast';
-import { MainLayout } from '../../components/Layout';
+import { MainLayout } from '../../components/layout';
 
 const orderStatuses = [
   { value: 'pending', label: 'Pending', color: 'warning' as const, icon: <Pending /> },

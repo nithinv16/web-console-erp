@@ -51,7 +51,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { createClient } from '../../lib/supabase';
 import { Product } from '../../types';
 import { toast } from 'react-hot-toast';
-import { MainLayout } from '../../components/Layout';
+import { MainLayout } from '../../components/layout';
 
 interface InventoryStats {
   totalProducts: number;

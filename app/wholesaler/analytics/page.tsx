@@ -53,7 +53,7 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts'
-import { MainLayout } from '../../../components/Layout'
+import { MainLayout } from '../../../components/layout'
 
 interface AnalyticsData {
   totalRevenue: number
