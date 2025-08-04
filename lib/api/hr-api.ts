@@ -1,4 +1,6 @@
-import { supabase } from '../supabase';
+import { createClient } from '../supabase';
+
+const supabase = createClient();
 import { Database } from '../../types/database';
 
 type Employee = Database['public']['Tables']['employees']['Row'];

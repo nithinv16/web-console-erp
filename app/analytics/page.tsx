@@ -418,7 +418,7 @@ export default function AnalyticsPage() {
                       {analytics?.orders?.total || 0}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Avg: ₹{analytics?.orders?.average?.toLocaleString() || 0}
+                      Pending: {analytics?.orders?.pending || 0}
                     </Typography>
                   </Box>
                   <ShoppingCart color="primary" sx={{ fontSize: 40 }} />
