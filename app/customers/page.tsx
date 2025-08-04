@@ -25,6 +25,7 @@ import {
   Paper,
   Avatar,
   Menu,
+  MenuItem,
   ListItemIcon,
   ListItemText,
   Divider,
