@@ -1,4 +1,4 @@
-import { createClient } from '../supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Database } from '../../types/database';
 
 type Customer = Database['public']['Tables']['customers']['Row'];
@@ -148,31 +148,32 @@ export interface CRMAnalytics {
 }
 
 export class CRMApi {
+  private static supabase = createClientComponentClient<Database>()
+
   // Dashboard Data
   static async getDashboardData(companyId: string) {
     try {
       // Get leads count
-      const supabase = createClient();
-      const { count: totalLeads } = await supabase
+      const { count: totalLeads } = await this.supabase
         .from('leads')
         .select('*', { count: 'exact', head: true })
         .eq('company_id', companyId);
 
       // Get qualified leads count
-      const { count: qualifiedLeads } = await supabase
+      const { count: qualifiedLeads } = await this.supabase
         .from('leads')
         .select('*', { count: 'exact', head: true })
         .eq('company_id', companyId)
         .eq('status', 'qualified');
 
       // Get opportunities count
-      const { count: totalOpportunities } = await supabase
+      const { count: totalOpportunities } = await this.supabase
         .from('opportunities')
         .select('*', { count: 'exact', head: true })
         .eq('company_id', companyId);
 
       // Get pipeline value
-      const { data: opportunities } = await supabase
+      const { data: opportunities } = await this.supabase
         .from('opportunities')
         .select('value')
         .eq('company_id', companyId)
@@ -195,7 +196,7 @@ export class CRMApi {
   // Customer Management
   static async getCustomers(companyId: string, filters: any = {}) {
     try {
-      let query = supabase
+      let query = this.supabase
         .from('customers')
         .select('*')
         .eq('company_id', companyId);
@@ -226,7 +227,7 @@ export class CRMApi {
 
   // Lead Management
   static async getLeads(companyId: string, filters?: LeadFilters) {
-    let query = supabase
+    let query = this.supabase
       .from('leads')
       .select(`
         *,
@@ -263,7 +264,7 @@ export class CRMApi {
   }
 
   static async getLead(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('leads')
       .select(`
         *,
@@ -280,7 +281,7 @@ export class CRMApi {
   }
 
   static async createLead(companyId: string, leadData: CreateLeadData) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('leads')
       .insert({
         ...leadData,
@@ -294,7 +295,7 @@ export class CRMApi {
   }
 
   static async updateLead(id: string, leadData: Partial<CreateLeadData>) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('leads')
       .update(leadData)
       .eq('id', id)
@@ -307,7 +308,7 @@ export class CRMApi {
 
   static async convertLeadToCustomer(leadId: string, customerData?: Partial<Customer>) {
     // Get lead data
-    const { data: lead, error: leadError } = await supabase
+    const { data: lead, error: leadError } = await this.supabase
       .from('leads')
       .select('*')
       .eq('id', leadId)
@@ -316,7 +317,7 @@ export class CRMApi {
     if (leadError) throw leadError;
 
     // Create customer from lead
-    const { data: customer, error: customerError } = await supabase
+    const { data: customer, error: customerError } = await this.supabase
       .from('customers')
       .insert({
         company_id: lead.company_id,
@@ -336,7 +337,7 @@ export class CRMApi {
     if (customerError) throw customerError;
 
     // Update lead status
-    await supabase
+    await this.supabase
       .from('leads')
       .update({ 
         status: 'converted',
@@ -349,7 +350,7 @@ export class CRMApi {
   }
 
   static async deleteLead(id: string) {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('leads')
       .delete()
       .eq('id', id);
@@ -359,7 +360,7 @@ export class CRMApi {
 
   // Opportunity Management
   static async getOpportunities(companyId: string, filters?: OpportunityFilters) {
-    let query = supabase
+    let query = this.supabase
       .from('opportunities')
       .select(`
         *,
@@ -400,7 +401,7 @@ export class CRMApi {
   }
 
   static async getOpportunity(id: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('opportunities')
       .select(`
         *,
@@ -417,7 +418,7 @@ export class CRMApi {
   }
 
   static async createOpportunity(companyId: string, opportunityData: CreateOpportunityData) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('opportunities')
       .insert({
         ...opportunityData,
@@ -431,7 +432,7 @@ export class CRMApi {
   }
 
   static async updateOpportunity(id: string, opportunityData: Partial<CreateOpportunityData>) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('opportunities')
       .update(opportunityData)
       .eq('id', id)
@@ -453,7 +454,7 @@ export class CRMApi {
       updateData.notes = notes;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('opportunities')
       .update(updateData)
       .eq('id', id)
@@ -465,7 +466,7 @@ export class CRMApi {
   }
 
   static async deleteOpportunity(id: string) {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('opportunities')
       .delete()
       .eq('id', id);
@@ -475,7 +476,7 @@ export class CRMApi {
 
   // Contact Management
   static async getContacts(companyId: string, customerId?: string) {
-    let query = supabase
+    let query = this.supabase
       .from('contacts')
       .select(`
         *,
@@ -494,7 +495,7 @@ export class CRMApi {
   }
 
   static async createContact(companyId: string, contactData: CreateContactData) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('contacts')
       .insert({
         ...contactData,
@@ -508,7 +509,7 @@ export class CRMApi {
   }
 
   static async updateContact(id: string, contactData: Partial<CreateContactData>) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('contacts')
       .update(contactData)
       .eq('id', id)
@@ -520,7 +521,7 @@ export class CRMApi {
   }
 
   static async deleteContact(id: string) {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('contacts')
       .delete()
       .eq('id', id);
@@ -530,7 +531,7 @@ export class CRMApi {
 
   // Activity Management
   static async getActivities(companyId: string, filters?: ActivityFilters) {
-    let query = supabase
+    let query = this.supabase
       .from('activities')
       .select(`
         *,
@@ -576,7 +577,7 @@ export class CRMApi {
   }
 
   static async createActivity(companyId: string, activityData: CreateActivityData) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('activities')
       .insert({
         ...activityData,
@@ -590,7 +591,7 @@ export class CRMApi {
   }
 
   static async updateActivity(id: string, activityData: Partial<CreateActivityData>) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('activities')
       .update(activityData)
       .eq('id', id)
@@ -602,7 +603,7 @@ export class CRMApi {
   }
 
   static async completeActivity(id: string, outcome?: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('activities')
       .update({
         status: 'completed',
@@ -618,7 +619,7 @@ export class CRMApi {
   }
 
   static async deleteActivity(id: string) {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('activities')
       .delete()
       .eq('id', id);
@@ -628,7 +629,7 @@ export class CRMApi {
 
   // Campaign Management
   static async getCampaigns(companyId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('campaigns')
       .select(`
         *,
@@ -643,7 +644,7 @@ export class CRMApi {
   }
 
   static async createCampaign(companyId: string, campaignData: CreateCampaignData) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('campaigns')
       .insert({
         ...campaignData,
@@ -657,7 +658,7 @@ export class CRMApi {
   }
 
   static async updateCampaign(id: string, campaignData: Partial<CreateCampaignData>) {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('campaigns')
       .update(campaignData)
       .eq('id', id)
@@ -669,7 +670,7 @@ export class CRMApi {
   }
 
   static async deleteCampaign(id: string) {
-    const { error } = await supabase
+    const { error } = await this.supabase
       .from('campaigns')
       .delete()
       .eq('id', id);
@@ -680,7 +681,7 @@ export class CRMApi {
   // Analytics and Reports
   static async getCRMAnalytics(companyId: string): Promise<CRMAnalytics> {
     // Get leads data
-    const { data: leads, error: leadsError } = await supabase
+    const { data: leads, error: leadsError } = await this.supabase
       .from('leads')
       .select('*')
       .eq('company_id', companyId);
@@ -688,7 +689,7 @@ export class CRMApi {
     if (leadsError) throw leadsError;
 
     // Get opportunities data
-    const { data: opportunities, error: opportunitiesError } = await supabase
+    const { data: opportunities, error: opportunitiesError } = await this.supabase
       .from('opportunities')
       .select('*')
       .eq('company_id', companyId);
@@ -724,7 +725,7 @@ export class CRMApi {
       return {
         source,
         count,
-        conversion_rate: count > 0 ? (converted / count) * 100 : 0
+        conversion_rate: (typeof count === 'number' && count > 0) ? (converted / count) * 100 : 0
       };
     });
 
@@ -740,8 +741,8 @@ export class CRMApi {
 
     const pipelineByStage = Object.entries(stageData).map(([stage, data]) => ({
       stage,
-      count: data.count,
-      value: data.value
+      count: typeof (data as any).count === 'number' ? (data as any).count : 0,
+      value: typeof (data as any).value === 'number' ? (data as any).value : 0
     }));
 
     // Monthly performance (last 6 months)
@@ -770,7 +771,7 @@ export class CRMApi {
       won_opportunities: wonOpportunitiesCount,
       average_deal_size: Math.round(averageDealSize),
       sales_cycle_days: salesCycleDays,
-      lead_sources: leadSources,
+      lead_sources: leadSources as Array<{source: string; count: number; conversion_rate: number}>,
       pipeline_by_stage: pipelineByStage,
       monthly_performance: monthlyPerformance,
       top_performers: topPerformers
@@ -781,7 +782,7 @@ export class CRMApi {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + days);
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('activities')
       .select(`
         *,
@@ -802,7 +803,7 @@ export class CRMApi {
   static async getOverdueActivities(companyId: string) {
     const today = new Date().toISOString().split('T')[0];
 
-    const { data, error } = await supabase
+    const { data, error } = await this.supabase
       .from('activities')
       .select(`
         *,
@@ -821,7 +822,7 @@ export class CRMApi {
   }
 
   static async getSalesForecast(companyId: string, months: number = 3) {
-    const { data: opportunities, error } = await supabase
+    const { data: opportunities, error } = await this.supabase
       .from('opportunities')
       .select('*')
       .eq('company_id', companyId)
@@ -845,6 +846,10 @@ export class CRMApi {
       return acc;
     }, {} as Record<string, { month: string; forecasted_revenue: number; opportunity_count: number }>);
 
-    return Object.values(forecast).sort((a, b) => a.month.localeCompare(b.month));
+    return Object.values(forecast).sort((a, b) => {
+      const monthA = (a as { month: string }).month;
+      const monthB = (b as { month: string }).month;
+      return monthA.localeCompare(monthB);
+    });
   }
 }

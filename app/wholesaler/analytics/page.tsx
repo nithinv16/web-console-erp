@@ -146,9 +146,9 @@ export default function Analytics() {
 
       // Process top products from orders items
       const topProductsData: any[] = []
-      ordersData?.forEach(order => {
-        if (order.items && Array.isArray(order.items)) {
-          order.items.forEach((item: any) => {
+      ordersData?.forEach((order: any) => {
+        if (order.order_items && Array.isArray(order.order_items)) {
+          order.order_items.forEach((item: any) => {
             topProductsData.push({
               product_id: item.product_id || item.id,
               quantity: item.quantity,
@@ -229,7 +229,7 @@ export default function Analytics() {
       const customerStats = new Map()
       topCustomersData?.forEach(order => {
         const customerId = order.retailer_id
-        const customerName = order.profiles?.business_name || 'Unknown'
+        const customerName = (order.profiles as any)?.business_name || 'Unknown'
         const amount = order.total_amount || 0
 
         if (customerStats.has(customerId)) {

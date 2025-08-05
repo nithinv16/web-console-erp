@@ -1,5 +1,7 @@
-import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Database } from '../../types/database';
+
+const supabase = createClientComponentClient<Database>();
 
 // Types for Business Intelligence
 export interface Dashboard {
@@ -233,7 +235,7 @@ export interface BIFilters {
   search?: string;
 }
 
-class BusinessIntelligenceApi {
+export class BusinessIntelligenceApi {
   // Dashboards
   async getDashboards(companyId: string, filters?: BIFilters) {
     let query = supabase
@@ -471,11 +473,11 @@ class BusinessIntelligenceApi {
     // Build and execute the query based on report configuration
     const result = await this.executeAnalyticsQuery({
       data_source: report.data_source,
-      dimensions: report.query.fields.filter(f => f.type !== 'number').map(f => f.name),
-      metrics: report.query.fields.filter(f => f.type === 'number').map(f => f.name),
+      dimensions: report.query.fields.filter((f: ReportField) => f.type !== 'number').map((f: ReportField) => f.name),
+      metrics: report.query.fields.filter((f: ReportField) => f.type === 'number').map((f: ReportField) => f.name),
       filters: this.buildFiltersFromReport(report.query.filters, parameters),
       group_by: report.query.grouping,
-      order_by: report.query.sorting.map(s => ({ field: s.field, direction: s.direction }))
+      order_by: report.query.sorting.map((s: ReportSort) => ({ field: s.field, direction: s.direction }))
     });
 
     return {

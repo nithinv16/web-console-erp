@@ -48,6 +48,19 @@ interface ProductForm {
   status: 'active' | 'inactive'
 }
 
+interface ProductFormErrors {
+  name?: string
+  description?: string
+  category?: string
+  price?: string
+  unit?: string
+  stock_available?: string
+  min_quantity?: string
+  max_quantity?: string
+  image_url?: string
+  status?: string
+}
+
 const categories = [
   'Fruits & Vegetables',
   'Grains & Cereals',
@@ -91,7 +104,7 @@ export default function AddProduct() {
     image_url: '',
     status: 'active'
   })
-  const [errors, setErrors] = useState<Partial<ProductForm>>({})
+  const [errors, setErrors] = useState<ProductFormErrors>({})
 
   const supabase = createClient()
 
@@ -106,7 +119,7 @@ export default function AddProduct() {
   }
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<ProductForm> = {}
+    const newErrors: ProductFormErrors = {}
 
     if (!formData.name.trim()) {
       newErrors.name = 'Product name is required'

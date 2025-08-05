@@ -167,7 +167,7 @@ export default function Sidebar({ open, onClose, variant = 'permanent' }: Sideba
       <Box sx={{ p: 3, borderBottom: `1px solid ${theme.palette.divider}` }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Avatar
-            src={sellerDetails?.image_url}
+            src={sellerDetails?.profile_image_url}
             sx={{ 
               width: 48, 
               height: 48, 
@@ -187,7 +187,7 @@ export default function Sidebar({ open, onClose, variant = 'permanent' }: Sideba
           </Box>
         </Box>
         
-        {sellerDetails?.is_verified ? (
+        {sellerDetails?.status === 'approved' ? (
           <Chip
             label="Verified"
             color="success"

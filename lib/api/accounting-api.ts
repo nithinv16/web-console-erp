@@ -1,5 +1,5 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/database'
+import { Database } from '../../types/database'
 
 export interface ChartOfAccount {
   id: string
@@ -223,7 +223,7 @@ export class AccountingApi {
       .single()
     
     if (!openingBalanceAccount) {
-      const { data: newAccount } = await this.supabase
+      const { data: newAccount, error: createError } = await this.supabase
         .from('chart_of_accounts')
         .insert({
           company_id: companyId,
@@ -238,10 +238,18 @@ export class AccountingApi {
         .select()
         .single()
       
+      if (createError || !newAccount) {
+        throw new Error('Failed to create opening balance equity account')
+      }
+      
       openingBalanceAccount = newAccount
     }
 
     // Create journal entry for opening balance
+    if (!openingBalanceAccount) {
+      throw new Error('Opening balance account is required')
+    }
+    
     const lineItems = []
     
     if (accountType === 'asset' || accountType === 'expense') {

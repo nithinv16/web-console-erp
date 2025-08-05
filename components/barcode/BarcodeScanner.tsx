@@ -162,7 +162,16 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({
           
           for (const processedImageData of attempts) {
             try {
-              const result = await codeReader.current!.decodeFromImageData(processedImageData)
+              // Convert ImageData back to canvas and get data URL
+              const tempCanvas = document.createElement('canvas')
+              const tempCtx = tempCanvas.getContext('2d')
+              if (!tempCtx) continue
+              
+              tempCanvas.width = processedImageData.width
+              tempCanvas.height = processedImageData.height
+              tempCtx.putImageData(processedImageData, 0, 0)
+              
+              const result = await codeReader.current!.decodeFromImage(tempCanvas.toDataURL())
               
               if (result && result.getText()) {
                 const now = Date.now()

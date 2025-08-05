@@ -121,8 +121,8 @@ export default function AssetsPage() {
         transfersData
       ] = await Promise.all([
         AssetApi.getAssets({ limit: 10 }),
-        AssetApi.getMaintenanceSchedules({ limit: 10 }),
-        AssetApi.getDepreciationRecords({ limit: 10 }),
+        AssetApi.getMaintenance({ limit: 10 }),
+        AssetApi.getDepreciation({ limit: 10 }),
         AssetApi.getLocations({ limit: 10 }),
         AssetApi.getAssetTransfers({ limit: 10 })
       ])

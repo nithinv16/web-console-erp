@@ -47,11 +47,11 @@ import {
   Download,
   Upload
 } from '@mui/icons-material';
-import { useAuth } from '../../contexts/AuthContext';
-import { createClient } from '../../lib/supabase';
-import { Product } from '../../types';
+import { useAuth } from '@/contexts/AuthContext';
+import { createClient } from '@/lib/supabase';
+import { Product } from '@/types';
 import { toast } from 'react-hot-toast';
-import { MainLayout } from '../../components/layout';
+import { MainLayout } from '@/components/layout';
 
 interface InventoryStats {
   totalProducts: number;
@@ -180,9 +180,9 @@ export default function InventoryPage() {
   const calculateStats = (productsData: Product[]) => {
     const stats = {
       totalProducts: productsData.length,
-      totalValue: productsData.reduce((sum, p) => sum + (p.price * p.stock), 0),
-      lowStockProducts: productsData.filter(p => p.stock > 0 && p.stock < 10).length,
-      outOfStockProducts: productsData.filter(p => p.stock === 0).length
+      totalValue: productsData.reduce((sum, p) => sum + (p.price * (p.stock_available || 0)), 0),
+      lowStockProducts: productsData.filter(p => (p.stock_available || 0) > 0 && (p.stock_available || 0) < 10).length,
+      outOfStockProducts: productsData.filter(p => (p.stock_available || 0) === 0).length
     };
     setStats(stats);
   };
@@ -207,16 +207,16 @@ export default function InventoryPage() {
     if (stockFilter !== 'all') {
       switch (stockFilter) {
         case 'in_stock':
-          filtered = filtered.filter(p => p.stock >= 50);
+          filtered = filtered.filter(p => (p.stock_available || 0) >= 50);
           break;
         case 'low_stock':
-          filtered = filtered.filter(p => p.stock > 0 && p.stock < 10);
+          filtered = filtered.filter(p => (p.stock_available || 0) > 0 && (p.stock_available || 0) < 10);
           break;
         case 'out_of_stock':
-          filtered = filtered.filter(p => p.stock === 0);
+          filtered = filtered.filter(p => (p.stock_available || 0) === 0);
           break;
         case 'medium_stock':
-          filtered = filtered.filter(p => p.stock >= 10 && p.stock < 50);
+          filtered = filtered.filter(p => (p.stock_available || 0) >= 10 && (p.stock_available || 0) < 50);
           break;
       }
     }
@@ -234,7 +234,7 @@ export default function InventoryPage() {
     setStockAdjustment({
       productId: product.id,
       productName: product.name,
-      currentStock: product.stock,
+      currentStock: product.stock_available || 0,
       adjustment: 0,
       reason: ''
     });
@@ -280,7 +280,7 @@ export default function InventoryPage() {
       const product = products.find(p => p.id === productId);
       if (!product) return;
 
-      const newStock = product.stock + adjustment;
+      const newStock = (product.stock_available || 0) + adjustment;
       
       if (newStock < 0) {
         toast.error('Stock cannot be negative');
@@ -306,11 +306,11 @@ export default function InventoryPage() {
   };
 
   const getLowStockProducts = () => {
-    return products.filter(p => p.stock > 0 && p.stock < 10);
+    return products.filter(p => (p.stock_available || 0) > 0 && (p.stock_available || 0) < 10);
   };
 
   const getOutOfStockProducts = () => {
-    return products.filter(p => p.stock === 0);
+    return products.filter(p => (p.stock_available || 0) === 0);
   };
 
   if (loading) {
@@ -520,7 +520,7 @@ export default function InventoryPage() {
                 </TableHead>
                 <TableBody>
                   {filteredProducts.map((product) => {
-                    const stockStatus = getStockStatus(product.stock);
+                    const stockStatus = getStockStatus(product.stock || 0);
                     return (
                       <TableRow key={product.id} hover>
                         <TableCell>
@@ -563,7 +563,7 @@ export default function InventoryPage() {
                         </TableCell>
                         <TableCell align="right">
                           <Typography variant="body2">
-                            ₹{(product.price * product.stock).toLocaleString()}
+                            ₹{(product.price * (product.stock || 0)).toLocaleString()}
                           </Typography>
                         </TableCell>
                         <TableCell align="center">

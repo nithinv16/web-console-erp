@@ -183,7 +183,7 @@ export default function ProfilePage() {
       }
 
       // Update seller_details table if user has seller details
-      if (profile?.seller_details || profile?.role === 'seller' || profile?.role === 'wholesaler' || profile?.role === 'manufacturer') {
+      if ((profile as any).seller_details || profile?.role === 'seller' || profile?.role === 'wholesaler' || profile?.role === 'manufacturer') {
         const { error: sellerError } = await supabase
           .from('seller_details')
           .upsert({
@@ -282,7 +282,7 @@ export default function ProfilePage() {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <Avatar
-                src={sellerDetails?.image_url || profile.profile_image_url}
+                src={sellerDetails?.profile_image_url || ''}
                 sx={{
                   width: 120,
                   height: 120,

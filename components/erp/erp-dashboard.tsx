@@ -1,14 +1,23 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+  Button,
+  Chip,
+  Tabs,
+  Tab,
+  Alert,
+  LinearProgress,
+  Divider,
+  Box,
+  Paper,
+  Grid,
+  CircularProgress
+} from '@mui/material';
 import {
   BarChart,
   Bar,
@@ -26,31 +35,31 @@ import {
   AreaChart
 } from 'recharts';
 import {
-  Activity,
-  AlertCircle,
-  BarChart3,
-  Building2,
-  Calendar,
+  Timeline as Activity,
+  Warning as AlertCircle,
+  BarChart as BarChart3,
+  Business as Building2,
+  CalendarToday as Calendar,
   CheckCircle,
-  Clock,
-  DollarSign,
-  FileText,
-  Package,
+  AccessTime as Clock,
+  AttachMoney as DollarSign,
+  Description as FileText,
+  Inventory as Package,
   Settings,
   ShoppingCart,
   TrendingUp,
-  Users,
-  Zap,
-  Bell,
+  People as Users,
+  FlashOn as Zap,
+  Notifications as Bell,
   Search,
-  Filter,
+  FilterList as Filter,
   Download,
-  RefreshCw,
-  Eye,
-  ArrowUpRight,
-  ArrowDownRight,
-  Minus
-} from 'lucide-react';
+  Refresh as RefreshCw,
+  Visibility as Eye,
+  TrendingUp as ArrowUpRight,
+  TrendingDown as ArrowDownRight,
+  Remove as Minus
+} from '@mui/icons-material';
 import { MainERPApi, ERPDashboardData, ERPSystemHealth } from '@/lib/api/main-erp-api';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/utils';
 
@@ -60,7 +69,7 @@ interface ERPDashboardProps {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-const moduleIcons = {
+const moduleIcons: { [key: string]: any } = {
   sales: ShoppingCart,
   accounting: DollarSign,
   inventory: Package,
@@ -82,7 +91,7 @@ export function ERPDashboard({ className }: ERPDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedTimeRange, setSelectedTimeRange] = useState('7d');
+  const [selectedTab, setSelectedTab] = useState(0);
 
   const loadDashboardData = async () => {
     try {
@@ -106,6 +115,10 @@ export function ERPDashboard({ className }: ERPDashboardProps) {
     await loadDashboardData();
   };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setSelectedTab(newValue);
+  };
+
   useEffect(() => {
     loadDashboardData();
     
@@ -116,26 +129,17 @@ export function ERPDashboard({ className }: ERPDashboardProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'healthy': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'critical': return 'text-red-600';
-      default: return 'text-gray-600';
-    }
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'healthy': return 'default';
-      case 'warning': return 'secondary';
-      case 'critical': return 'destructive';
-      default: return 'outline';
+      case 'healthy': return 'success';
+      case 'warning': return 'warning';
+      case 'critical': return 'error';
+      default: return 'default';
     }
   };
 
   const getTrendIcon = (value: number) => {
-    if (value > 0) return <ArrowUpRight className="h-4 w-4 text-green-600" />;
-    if (value < 0) return <ArrowDownRight className="h-4 w-4 text-red-600" />;
-    return <Minus className="h-4 w-4 text-gray-600" />;
+    if (value > 0) return <ArrowUpRight sx={{ color: 'green' }} />;
+    if (value < 0) return <ArrowDownRight sx={{ color: 'red' }} />;
+    return <Minus sx={{ color: 'gray' }} />;
   };
 
   const formatPercentage = (value: number) => {
@@ -144,41 +148,32 @@ export function ERPDashboard({ className }: ERPDashboardProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="flex items-center space-x-2">
-          <RefreshCw className="h-6 w-6 animate-spin" />
-          <span>Loading ERP Dashboard...</span>
-        </div>
-      </div>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 400 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <CircularProgress size={24} />
+          <Typography>Loading ERP Dashboard...</Typography>
+        </Box>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {error}
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="ml-2" 
-            onClick={handleRefresh}
-          >
+      <Alert severity="error" sx={{ mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Typography>{error}</Typography>
+          <Button variant="outlined" size="small" onClick={handleRefresh}>
             Retry
           </Button>
-        </AlertDescription>
+        </Box>
       </Alert>
     );
   }
 
   if (!dashboardData || !systemHealth) {
     return (
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          No dashboard data available.
-        </AlertDescription>
+      <Alert severity="info">
+        <Typography>No dashboard data available.</Typography>
       </Alert>
     );
   }
@@ -192,399 +187,191 @@ export function ERPDashboard({ className }: ERPDashboardProps) {
     { name: 'Jun', revenue: 67000, orders: 168 }
   ];
 
-  const moduleUsageData = systemHealth.modules.map(module => ({
-    name: module.module,
-    usage: Math.floor(Math.random() * 100),
-    status: module.status
-  }));
-
   return (
-    <div className={`space-y-6 ${className}`}>
+    <Box sx={{ p: 3 }}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">ERP Dashboard</h1>
-          <p className="text-muted-foreground">
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box>
+          <Typography variant="h4" gutterBottom>
+            ERP Dashboard
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
             Comprehensive overview of your business operations
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button variant="outlined" startIcon={<Download />}>
             Export
           </Button>
           <Button 
-            variant="outline" 
-            size="sm" 
+            variant="outlined" 
+            startIcon={<RefreshCw />}
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-        </div>
-      </div>
+        </Box>
+      </Box>
 
       {/* System Health Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Activity className="h-5 w-5" />
-            <span>System Health</span>
-            <Badge variant={getStatusBadgeVariant(systemHealth.overall_status)}>
-              {systemHealth.overall_status.toUpperCase()}
-            </Badge>
-          </CardTitle>
-        </CardHeader>
+      <Card sx={{ mb: 3 }}>
+        <CardHeader
+          title={
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Activity />
+              <Typography variant="h6">System Health</Typography>
+              <Chip 
+                label={systemHealth.overall_status.toUpperCase()} 
+                color={getStatusColor(systemHealth.overall_status) as any}
+                size="small"
+              />
+            </Box>
+          }
+        />
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{systemHealth.active_users}</div>
-              <div className="text-sm text-muted-foreground">Active Users</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{systemHealth.api_response_time}ms</div>
-              <div className="text-sm text-muted-foreground">Response Time</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{systemHealth.system_load.toFixed(1)}%</div>
-              <div className="text-sm text-muted-foreground">System Load</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">
-                {systemHealth.database_status === 'connected' ? '✓' : '✗'}
-              </div>
-              <div className="text-sm text-muted-foreground">Database</div>
-            </div>
-          </div>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={3}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h4">{systemHealth.active_users}</Typography>
+                <Typography variant="body2" color="text.secondary">Active Users</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h4">{systemHealth.api_response_time}ms</Typography>
+                <Typography variant="body2" color="text.secondary">Response Time</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h4">{systemHealth.system_load.toFixed(1)}%</Typography>
+                <Typography variant="body2" color="text.secondary">System Load</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={3}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h4">
+                  {systemHealth.database_status === 'connected' ? '✓' : '✗'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">Database</Typography>
+              </Box>
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(dashboardData.sales.total_revenue)}
-            </div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              {getTrendIcon(dashboardData.sales.monthly_growth)}
-              <span className="ml-1">
-                {formatPercentage(dashboardData.sales.monthly_growth)} from last month
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Opportunities</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatNumber(dashboardData.sales.active_opportunities)}
-            </div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <span>Conversion rate: {dashboardData.sales.conversion_rate.toFixed(1)}%</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(dashboardData.financial.net_profit)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Cash flow: {formatCurrency(dashboardData.financial.cash_flow)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Employees</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {formatNumber(dashboardData.hr.total_employees)}
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Satisfaction: {dashboardData.hr.employee_satisfaction.toFixed(1)}%
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Tabs */}
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="sales">Sales</TabsTrigger>
-          <TabsTrigger value="operations">Operations</TabsTrigger>
-          <TabsTrigger value="modules">Modules</TabsTrigger>
-          <TabsTrigger value="activities">Activities</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Revenue Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Trend</CardTitle>
-                <CardDescription>Monthly revenue and order volume</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={salesChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip 
-                      formatter={(value, name) => [
-                        name === 'revenue' ? formatCurrency(value as number) : value,
-                        name === 'revenue' ? 'Revenue' : 'Orders'
-                      ]}
-                    />
-                    <Area 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#8884d8" 
-                      fill="#8884d8" 
-                      fillOpacity={0.6}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Operations Metrics */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Operations Performance</CardTitle>
-                <CardDescription>Key operational indicators</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Production Efficiency</span>
-                    <span>{dashboardData.operations.production_efficiency.toFixed(1)}%</span>
-                  </div>
-                  <Progress value={dashboardData.operations.production_efficiency} />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Quality Score</span>
-                    <span>{dashboardData.operations.quality_score.toFixed(1)}%</span>
-                  </div>
-                  <Progress value={dashboardData.operations.quality_score} />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>On-Time Delivery</span>
-                    <span>{dashboardData.operations.on_time_delivery.toFixed(1)}%</span>
-                  </div>
-                  <Progress value={dashboardData.operations.on_time_delivery} />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Inventory Turnover</span>
-                    <span>{dashboardData.operations.inventory_turnover.toFixed(1)}x</span>
-                  </div>
-                  <Progress value={Math.min(dashboardData.operations.inventory_turnover * 10, 100)} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="sales" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sales Performance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={salesChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#8884d8" 
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Order Volume</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={salesChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="orders" fill="#82ca9d" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="operations" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Financial Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-sm">Total Assets</span>
-                  <span className="font-medium">
-                    {formatCurrency(dashboardData.financial.total_assets)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Total Liabilities</span>
-                  <span className="font-medium">
-                    {formatCurrency(dashboardData.financial.total_liabilities)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Net Worth</span>
-                  <span className="font-medium">
-                    {formatCurrency(dashboardData.financial.total_assets - dashboardData.financial.total_liabilities)}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>HR Metrics</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-sm">Total Employees</span>
-                  <span className="font-medium">{dashboardData.hr.total_employees}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Turnover Rate</span>
-                  <span className="font-medium">{dashboardData.hr.turnover_rate.toFixed(1)}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Training Completion</span>
-                  <span className="font-medium">{dashboardData.hr.training_completion.toFixed(1)}%</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>System Alerts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-48">
-                  <div className="space-y-2">
-                    {dashboardData.alerts.map((alert) => (
-                      <Alert key={alert.id} variant={alert.type === 'error' ? 'destructive' : 'default'}>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription className="text-xs">
-                          <div className="font-medium">{alert.message}</div>
-                          <div className="text-muted-foreground">
-                            {alert.module} • {formatDate(alert.timestamp)}
-                          </div>
-                        </AlertDescription>
-                      </Alert>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="modules" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {systemHealth.modules.map((module) => {
-              const IconComponent = moduleIcons[module.module.toLowerCase().replace(' ', '_')] || Settings;
-              return (
-                <Card key={module.module}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium flex items-center space-x-2">
-                      <IconComponent className="h-4 w-4" />
-                      <span>{module.module}</span>
-                    </CardTitle>
-                    <Badge variant={getStatusBadgeVariant(module.status)}>
-                      {module.status}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-xs text-muted-foreground">
-                      Version: {module.version}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Updated: {formatDate(module.last_updated)}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="activities" className="space-y-4">
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        <Grid item xs={12} sm={6} md={3}>
           <Card>
-            <CardHeader>
-              <CardTitle>Recent Activities</CardTitle>
-              <CardDescription>Latest system activities and user actions</CardDescription>
-            </CardHeader>
             <CardContent>
-              <ScrollArea className="h-96">
-                <div className="space-y-4">
-                  {dashboardData.recent_activities.map((activity) => (
-                    <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg border">
-                      <div className="flex-shrink-0">
-                        <Activity className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium">{activity.description}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {activity.user} • {activity.type} • {formatDate(activity.timestamp)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Total Revenue
+                  </Typography>
+                  <Typography variant="h4">
+                    {formatCurrency(dashboardData.sales.total_revenue)}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                    {getTrendIcon(dashboardData.sales.monthly_growth)}
+                    <Typography variant="caption" sx={{ ml: 0.5 }}>
+                      {formatPercentage(dashboardData.sales.monthly_growth)} from last month
+                    </Typography>
+                  </Box>
+                </Box>
+                <DollarSign color="action" />
+              </Box>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+        </Grid>
+        
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Active Opportunities
+                  </Typography>
+                  <Typography variant="h4">
+                    {formatNumber(dashboardData.sales.active_opportunities)}
+                  </Typography>
+                  <Typography variant="caption">
+                    Conversion rate: {dashboardData.sales.conversion_rate.toFixed(1)}%
+                  </Typography>
+                </Box>
+                <TrendingUp color="action" />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Net Profit
+                  </Typography>
+                  <Typography variant="h4">
+                    {formatCurrency(dashboardData.financial.net_profit)}
+                  </Typography>
+                  <Typography variant="caption">
+                    Cash flow: {formatCurrency(dashboardData.financial.cash_flow)}
+                  </Typography>
+                </Box>
+                <BarChart3 color="action" />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        <Grid item xs={12} sm={6} md={3}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    Employees
+                  </Typography>
+                  <Typography variant="h4">
+                    {formatNumber(dashboardData.hr.total_employees)}
+                  </Typography>
+                  <Typography variant="caption">
+                    Satisfaction: {dashboardData.hr.employee_satisfaction.toFixed(1)}%
+                  </Typography>
+                </Box>
+                <Users color="action" />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Charts Section */}
+      <Card>
+        <CardHeader title="Sales Performance" />
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={salesChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip formatter={(value) => formatCurrency(value as number)} />
+              <Line 
+                type="monotone" 
+                dataKey="revenue" 
+                stroke="#8884d8" 
+                strokeWidth={2}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
 

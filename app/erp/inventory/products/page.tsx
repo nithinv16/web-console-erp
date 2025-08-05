@@ -146,8 +146,23 @@ export default function ProductsPage() {
         query = query.eq('status', filters.status)
       }
       
-      // Get total count
-      const { count } = await query.select('*', { count: 'exact', head: true })
+      // Get total count with filters
+      let countQuery = supabase
+        .from('erp_products')
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', companies.id)
+      
+      if (filters.search) {
+        countQuery = countQuery.or(`name.ilike.%${filters.search}%,sku.ilike.%${filters.search}%,barcode.ilike.%${filters.search}%`)
+      }
+      if (filters.category) {
+        countQuery = countQuery.eq('category_id', filters.category)
+      }
+      if (filters.status) {
+        countQuery = countQuery.eq('status', filters.status)
+      }
+      
+      const { count } = await countQuery
       setTotalCount(count || 0)
       
       // Get paginated results
@@ -315,7 +330,7 @@ export default function ProductsPage() {
       )
       
       if (searchError) {
-        setError('Error searching for product: ' + searchError.message)
+        setError('Error searching for product: ' + (searchError as any)?.message || 'Unknown error')
         return
       }
       

@@ -36,8 +36,8 @@ import {
   Store,
   Analytics,
   LocalShipping,
-  AccountGroup,
-  ChartBar,
+  Group,
+  BarChart,
 
 } from '@mui/icons-material'
 import { useAuth } from '../../contexts/AuthContext'
@@ -131,9 +131,9 @@ export default function WholesalerDashboard() {
       
       try {
         // Polyfill for Promise.allSettled if not available
-        const promiseAllSettled = Promise.allSettled || ((promises) => {
+        const promiseAllSettled = Promise.allSettled || ((promises: Promise<any>[]) => {
           return Promise.all(
-            promises.map(promise =>
+            promises.map((promise: Promise<any>) =>
               Promise.resolve(promise)
                 .then(value => ({ status: 'fulfilled', value }))
                 .catch(reason => ({ status: 'rejected', reason }))
@@ -279,7 +279,7 @@ export default function WholesalerDashboard() {
             <Grid item>
               <Avatar
                 sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)' }}
-                src={sellerDetails?.image_url}
+                src={sellerDetails?.profile_image_url}
               >
                 {sellerDetails?.business_name?.charAt(0) || 'W'}
               </Avatar>
@@ -289,7 +289,7 @@ export default function WholesalerDashboard() {
                 {sellerDetails?.business_name || 'Your Wholesale Business'}
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9, mb: 1 }}>
-                {sellerDetails?.business_type || 'Wholesale Business'}
+                {sellerDetails?.seller_type || 'Wholesale Business'}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                 {sellerDetails?.address && (
@@ -303,12 +303,7 @@ export default function WholesalerDashboard() {
                     </Typography>
                   </Box>
                 )}
-                {sellerDetails?.contact_phone && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Phone fontSize="small" />
-                    <Typography variant="body2">{sellerDetails.contact_phone}</Typography>
-                  </Box>
-                )}
+                {/* Contact phone not available in current SellerDetails interface */}
               </Box>
             </Grid>
             <Grid item>
@@ -322,9 +317,9 @@ export default function WholesalerDashboard() {
                   </IconButton>
                 </Badge>
                 <Chip
-                  icon={sellerDetails?.is_verified ? <Verified /> : <Warning />}
-                  label={sellerDetails?.is_verified ? 'Verified' : 'Pending Verification'}
-                  color={sellerDetails?.is_verified ? 'success' : 'warning'}
+                  icon={sellerDetails?.status === 'approved' ? <Verified /> : <Warning />}
+                  label={sellerDetails?.status === 'approved' ? 'Verified' : 'Pending Verification'}
+                  color={sellerDetails?.status === 'approved' ? 'success' : 'warning'}
                   variant="outlined"
                   sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}
                 />

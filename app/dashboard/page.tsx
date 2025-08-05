@@ -222,9 +222,18 @@ export default function DashboardPage() {
       setStats({
         totalOrders,
         pendingOrders,
-        totalRevenue,
+        revenue: {
+          today: 0,
+          thisMonth: totalRevenue,
+          thisYear: 0
+        },
         totalProducts,
-        lowStockProducts
+        lowStockProducts,
+        customers: {
+          total: orders.length,
+          new: 0,
+          repeat: 0
+        }
       });
     }
   };
@@ -530,7 +539,7 @@ export default function DashboardPage() {
             <Grid item>
               <Avatar
                 sx={{ width: 80, height: 80, bgcolor: 'rgba(255,255,255,0.2)' }}
-                src={sellerDetails?.image_url}
+                src={sellerDetails?.profile_image_url}
               >
                 {sellerDetails?.business_name?.charAt(0) || 'B'}
               </Avatar>
@@ -540,7 +549,7 @@ export default function DashboardPage() {
                 {sellerDetails?.business_name || 'Your Business'}
               </Typography>
               <Typography variant="body1" sx={{ opacity: 0.9, mb: 1 }}>
-                {sellerDetails?.business_type || 'Wholesale Business'}
+                {sellerDetails?.seller_type || 'Wholesale Business'}
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                 {sellerDetails?.address && (
@@ -554,19 +563,14 @@ export default function DashboardPage() {
                     </Typography>
                   </Box>
                 )}
-                {sellerDetails?.contact_phone && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Phone fontSize="small" />
-                    <Typography variant="body2">{sellerDetails.contact_phone}</Typography>
-                  </Box>
-                )}
+                {/* Contact phone not available in SellerDetails interface */}
               </Box>
             </Grid>
             <Grid item>
               <Chip
-                icon={sellerDetails?.is_verified ? <Verified /> : <Warning />}
-                label={sellerDetails?.is_verified ? 'Verified' : 'Pending Verification'}
-                color={sellerDetails?.is_verified ? 'success' : 'warning'}
+                icon={sellerDetails?.status === 'approved' ? <Verified /> : <Warning />}
+                label={sellerDetails?.status === 'approved' ? 'Verified' : 'Pending Verification'}
+                color={sellerDetails?.status === 'approved' ? 'success' : 'warning'}
                 variant="outlined"
                 sx={{ color: 'white', borderColor: 'rgba(255,255,255,0.5)' }}
               />
@@ -607,7 +611,7 @@ export default function DashboardPage() {
                     Revenue
                   </Typography>
                   <Typography variant="h4">
-                    ₹{stats?.totalRevenue?.toLocaleString() || 0}
+                    ₹{stats?.revenue?.thisMonth?.toLocaleString() || 0}
                   </Typography>
                   <Typography variant="body2" color="success.main">
                     +12% from last month
@@ -812,7 +816,7 @@ export default function DashboardPage() {
                         <Chip
                           label={order.status}
                           size="small"
-                          color={order.status === 'completed' ? 'success' : order.status === 'pending' ? 'warning' : 'default'}
+                          color={order.status === 'delivered' ? 'success' : order.status === 'pending' ? 'warning' : 'default'}
                         />
                       </Box>
                     </Box>

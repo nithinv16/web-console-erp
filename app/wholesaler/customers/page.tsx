@@ -126,7 +126,7 @@ export default function Customers() {
       const customerMap = new Map<string, Customer>()
       
       ordersData?.forEach(order => {
-        const profile = order.profiles
+        const profile = order.profiles as any
         const customerId = profile.id
         
         if (customerMap.has(customerId)) {

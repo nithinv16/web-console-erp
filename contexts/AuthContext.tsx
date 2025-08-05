@@ -6,18 +6,19 @@ import { User as AppUser } from '@/types'
 import toast from 'react-hot-toast'
 
 interface SellerDetails {
+  id: string
   user_id: string
   business_name: string
   owner_name: string
-  business_type: string
-  contact_phone: string
-  contact_email: string
+  seller_type: 'wholesaler' | 'manufacturer'
+  registration_number?: string
+  gst_number?: string
+  profile_image_url?: string
   address: any
-  location_address: string
-  latitude: number
-  longitude: number
-  is_verified: boolean
-  image_url?: string
+  location_address?: string
+  latitude?: number
+  longitude?: number
+  status: 'pending' | 'approved' | 'rejected'
   created_at: string
   updated_at: string
 }

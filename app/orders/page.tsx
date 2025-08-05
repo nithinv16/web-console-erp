@@ -403,7 +403,7 @@ export default function OrdersPage() {
                               #{order.id.slice(-8).toUpperCase()}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              {order.items?.length || 0} items
+                              {(order as any).order_items?.length || 0} items
                             </Typography>
                           </TableCell>
                           <TableCell>
@@ -582,14 +582,14 @@ export default function OrdersPage() {
                     <Grid item xs={12}>
                       <Typography variant="body2" color="text.secondary">Items</Typography>
                       <Typography variant="body1">
-                        {selectedOrder.items?.length || 0} items
+                        {(selectedOrder as any).order_items?.length || 0} items
                       </Typography>
                     </Grid>
-                    {selectedOrder.notes && (
+                    {(selectedOrder as any).notes && (
                       <Grid item xs={12}>
                         <Typography variant="body2" color="text.secondary">Notes</Typography>
                         <Typography variant="body1">
-                          {selectedOrder.notes}
+                          {(selectedOrder as any).notes}
                         </Typography>
                       </Grid>
                     )}

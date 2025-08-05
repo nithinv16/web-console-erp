@@ -127,7 +127,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           }}
         >
           <Avatar
-            src={sellerDetails?.image_url}
+            src={sellerDetails?.profile_image_url}
             sx={{ width: 40, height: 40 }}
           >
             {sellerDetails?.business_name?.charAt(0) || 'B'}
@@ -137,10 +137,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               {sellerDetails?.business_name || 'Your Business'}
             </Typography>
             <Typography variant="caption" color="text.secondary" noWrap>
-              {sellerDetails?.business_type || 'Wholesale'}
+              {sellerDetails?.seller_type || 'Wholesale'}
             </Typography>
           </Box>
-          {sellerDetails?.is_verified && (
+          {sellerDetails?.status === 'approved' && (
             <Chip
               label="Verified"
               size="small"
@@ -253,7 +253,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               sx={{ ml: 1 }}
             >
               <Avatar
-                src={sellerDetails?.image_url}
+                src={sellerDetails?.profile_image_url}
                 sx={{ width: 32, height: 32 }}
               >
                 {sellerDetails?.owner_name?.charAt(0) || user?.email?.charAt(0) || 'U'}

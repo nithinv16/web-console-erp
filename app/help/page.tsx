@@ -100,7 +100,7 @@ export default function HelpPage() {
     }
   ]
 
-  const categories = [...new Set(faqs.map(faq => faq.category))]
+  const categories = Array.from(new Set(faqs.map(faq => faq.category)))
 
   const filteredFAQs = faqs.filter(faq => {
     const matchesSearch = faq.question.toLowerCase().includes(searchQuery.toLowerCase()) || 

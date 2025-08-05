@@ -11,6 +11,7 @@ export interface Database {
           role: 'retailer' | 'seller' | 'wholesaler' | 'manufacturer'
           status?: 'pending' | 'active' | 'suspended'
           language?: string
+          business_name?: string
           business_details: {
             shopName?: string
             ownerName?: string
@@ -34,6 +35,7 @@ export interface Database {
           role: 'retailer' | 'seller' | 'wholesaler' | 'manufacturer'
           status?: 'pending' | 'active' | 'suspended'
           language?: string
+          business_name?: string
           business_details?: any
           latitude?: number
           longitude?: number
@@ -50,6 +52,7 @@ export interface Database {
           role?: 'retailer' | 'seller' | 'wholesaler' | 'manufacturer'
           status?: 'pending' | 'active' | 'suspended'
           language?: string
+          business_name?: string
           business_details?: any
           latitude?: number
           longitude?: number
@@ -124,6 +127,7 @@ export interface Database {
           price: number
           unit: string
           min_quantity: number
+          min_order_quantity?: number
           stock_available: number
           image_url?: string
           barcode?: string
@@ -146,6 +150,7 @@ export interface Database {
           price: number
           unit: string
           min_quantity: number
+          min_order_quantity?: number
           stock_available: number
           image_url?: string
           barcode?: string
@@ -168,6 +173,7 @@ export interface Database {
           price?: number
           unit?: string
           min_quantity?: number
+          min_order_quantity?: number
           stock_available?: number
           image_url?: string
           barcode?: string
@@ -191,6 +197,8 @@ export interface Database {
           delivery_address: string
           payment_method?: string
           payment_status?: 'pending' | 'paid' | 'failed'
+          items?: any[]
+          notes?: string
           created_at: string
           updated_at: string
         }
@@ -204,6 +212,8 @@ export interface Database {
           delivery_address: string
           payment_method?: string
           payment_status?: 'pending' | 'paid' | 'failed'
+          items?: any[]
+          notes?: string
           created_at?: string
           updated_at?: string
         }
@@ -217,6 +227,8 @@ export interface Database {
           delivery_address?: string
           payment_method?: string
           payment_status?: 'pending' | 'paid' | 'failed'
+          items?: any[]
+          notes?: string
           created_at?: string
           updated_at?: string
         }

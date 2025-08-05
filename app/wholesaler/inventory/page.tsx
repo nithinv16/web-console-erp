@@ -413,7 +413,7 @@ export default function Inventory() {
   const getInventoryStats = () => {
     const totalProducts = products.length
     const activeProducts = products.filter(p => p.is_active).length
-    const lowStockProducts = products.filter(p => p.stock_available <= p.min_order_quantity && p.stock_available > 0 && p.is_active).length
+    const lowStockProducts = products.filter(p => p.stock_available <= p.min_quantity && p.stock_available > 0 && p.is_active).length
     const outOfStockProducts = products.filter(p => p.stock_available === 0 && p.is_active).length
     const totalValue = products.reduce((sum, p) => sum + (p.stock_available * p.price), 0)
 

@@ -40,7 +40,7 @@ export interface SellerDetails {
 
 export interface Product {
   id: string
-  seller_id: string
+  seller_id?: string
   name: string
   category: string
   subcategory?: string
@@ -48,12 +48,17 @@ export interface Product {
   description?: string
   price: number
   unit: string
-  min_order_quantity: number
-  stock_available: number
+  min_order_quantity?: number
+  stock_available?: number
+  stock?: number
   image_url?: string
-  is_active: boolean
-  created_at: string
-  updated_at: string
+  imageUrl?: string
+  is_active?: boolean
+  isActive?: boolean
+  created_at?: string
+  createdAt?: string
+  updated_at?: string
+  updatedAt?: string
 }
 
 export interface Order {

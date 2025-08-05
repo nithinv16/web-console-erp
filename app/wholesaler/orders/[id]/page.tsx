@@ -27,6 +27,9 @@ import {
   StepLabel,
   StepContent,
   Avatar,
+  TextField
+} from '@mui/material'
+import {
   Timeline,
   TimelineItem,
   TimelineSeparator,
@@ -34,7 +37,7 @@ import {
   TimelineContent,
   TimelineDot,
   TimelineOppositeContent
-} from '@mui/material'
+} from '@mui/lab'
 import {
   ArrowBack,
   CheckCircle,
@@ -51,8 +54,8 @@ import {
   HourglassEmpty,
   Error as ErrorIcon
 } from '@mui/icons-material'
-import { useAuth } from '../../../../contexts/AuthContext'
-import { createClient } from '../../../../lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
+import { createClient } from '@/lib/supabase'
 import { useRouter, useParams } from 'next/navigation'
 
 interface OrderItem {
@@ -350,9 +353,9 @@ export default function OrderDetails() {
           <Card sx={{ mb: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Order Items ({order.items?.length || 0})
+                Order Items ({order.order_items?.length || 0})
               </Typography>
-              {order.items?.map((item, index) => (
+              {order.order_items?.map((item: any, index: number) => (
                 <Box key={item.id}>
                   <Grid container spacing={2} alignItems="center" sx={{ py: 2 }}>
                     <Grid item>
@@ -379,7 +382,7 @@ export default function OrderDetails() {
                       </Typography>
                     </Grid>
                   </Grid>
-                  {index < (order.items?.length || 0) - 1 && <Divider />}
+                  {index < (order.order_items?.length || 0) - 1 && <Divider />}
                 </Box>
               ))}
               
@@ -389,7 +392,7 @@ export default function OrderDetails() {
                   Total Amount:
                 </Typography>
                 <Typography variant="h5" color="primary">
-                  ₹{order.total_amount?.toLocaleString() || getOrderTotal(order.items || []).toLocaleString()}
+                  ₹{order.total_amount?.toLocaleString() || getOrderTotal(order.order_items || []).toLocaleString()}
                 </Typography>
               </Box>
             </CardContent>
@@ -571,7 +574,7 @@ export default function OrderDetails() {
             <Select
               value={newStatus}
               label="New Status"
-              onChange={(e) => setNewStatus(e.target.value)}
+              onChange={(e: any) => setNewStatus(e.target.value)}
             >
               <MenuItem value="confirmed">Confirmed</MenuItem>
               <MenuItem value="shipped">Shipped</MenuItem>
@@ -585,7 +588,7 @@ export default function OrderDetails() {
             rows={3}
             label="Notes (Optional)"
             value={statusNotes}
-            onChange={(e) => setStatusNotes(e.target.value)}
+            onChange={(e: any) => setStatusNotes(e.target.value)}
             placeholder="Add any notes about this status update..."
           />
         </DialogContent>

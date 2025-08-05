@@ -194,9 +194,12 @@ export default function WholesalerProducts() {
   }
 
   const getStockStatus = (product: Product) => {
-    if (product.stock_available === 0) {
+    const stockAvailable = product.stock_available || 0;
+    const minOrderQuantity = product.min_order_quantity || 0;
+    
+    if (stockAvailable === 0) {
       return { label: 'Out of Stock', color: 'error' as const, icon: <Warning /> }
-    } else if (product.stock_available <= product.min_order_quantity) {
+    } else if (stockAvailable <= minOrderQuantity) {
       return { label: 'Low Stock', color: 'warning' as const, icon: <Warning /> }
     } else {
       return { label: 'In Stock', color: 'success' as const, icon: <CheckCircle /> }
@@ -255,7 +258,7 @@ export default function WholesalerProducts() {
                 Active: {filteredProducts.filter(p => p.is_active).length}
               </Typography>
               <Typography variant="body2" color="warning.main">
-                Low Stock: {filteredProducts.filter(p => p.stock_available <= p.min_order_quantity).length}
+                Low Stock: {filteredProducts.filter(p => (p.stock_available || 0) <= (p.min_order_quantity || 0) && (p.stock_available || 0) > 0).length}
               </Typography>
             </Box>
           </Grid>

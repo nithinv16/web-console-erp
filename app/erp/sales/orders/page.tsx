@@ -150,7 +150,28 @@ export default function SalesOrdersPage() {
       }
       
       // Get total count
-      const { count } = await query.select('*', { count: 'exact', head: true })
+      const countQuery = supabase
+        .from('sales_orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', companies.id)
+      
+      if (filters.search) {
+        countQuery.or(`so_number.ilike.%${filters.search}%`)
+      }
+      if (filters.status) {
+        countQuery.eq('status', filters.status)
+      }
+      if (filters.customer) {
+        countQuery.eq('customer_id', filters.customer)
+      }
+      if (filters.dateFrom) {
+        countQuery.gte('order_date', filters.dateFrom)
+      }
+      if (filters.dateTo) {
+        countQuery.lte('order_date', filters.dateTo)
+      }
+      
+      const { count } = await countQuery
       setTotalCount(count || 0)
       
       // Get paginated results
@@ -426,11 +447,11 @@ export default function SalesOrdersPage() {
                   <TableCell>
                     <Box>
                       <Typography variant="subtitle2">
-                        {order.order_number}
+                        {order.so_number}
                       </Typography>
-                      {order.reference_number && (
+                      {order.so_number && (
                         <Typography variant="body2" color="text.secondary">
-                          Ref: {order.reference_number}
+                          Ref: {order.so_number}
                         </Typography>
                       )}
                     </Box>
@@ -476,9 +497,9 @@ export default function SalesOrdersPage() {
                     </Box>
                   </TableCell>
                   <TableCell>
-                    {order.due_date ? (
+                    {order.delivery_date ? (
                       <Typography variant="body2">
-                        {formatDate(order.due_date)}
+                        {formatDate(order.delivery_date)}
                       </Typography>
                     ) : (
                       <Typography variant="body2" color="text.secondary">
@@ -577,7 +598,7 @@ export default function SalesOrdersPage() {
         <DialogTitle>Delete Sales Order</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete order "{selectedOrder?.order_number}"? This action cannot be undone.
+            Are you sure you want to delete order "{selectedOrder?.so_number}"? This action cannot be undone.
           </Typography>
         </DialogContent>
         <DialogActions>

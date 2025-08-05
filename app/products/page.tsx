@@ -213,7 +213,7 @@ export default function ProductsPage() {
       stock_available: product.stock_available || 0,
       unit: product.unit,
       min_order_quantity: product.min_order_quantity || 1,
-      status: product.status
+      status: product.is_active ? 'active' : 'inactive'
     });
     setOpenDialog(true);
     handleMenuClose();
@@ -240,14 +240,14 @@ export default function ProductsPage() {
 
   const handleToggleStatus = async (product: Product) => {
     try {
-      const newStatus = product.status === 'active' ? 'inactive' : 'active';
+      const newStatus = product.is_active ? false : true;
       const { error } = await supabase
         .from('products')
-        .update({ status: newStatus })
+        .update({ is_active: newStatus })
         .eq('id', product.id);
 
       if (error) throw error;
-      toast.success(`Product ${newStatus === 'active' ? 'activated' : 'deactivated'}`);
+      toast.success(`Product ${newStatus ? 'activated' : 'deactivated'}`);
       fetchProducts();
     } catch (error) {
       console.error('Error updating product status:', error);
@@ -271,8 +271,8 @@ export default function ProductsPage() {
                          product.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !categoryFilter || product.category === categoryFilter;
     const matchesStatus = statusFilter === 'all' || 
-                         (statusFilter === 'active' && product.status === 'active') ||
-                         (statusFilter === 'inactive' && product.status === 'inactive') ||
+                         (statusFilter === 'active' && product.is_active) ||
+        (statusFilter === 'inactive' && !product.is_active) ||
                          (statusFilter === 'low_stock' && (product.stock_available || 0) < 10);
     
     return matchesSearch && matchesCategory && matchesStatus;
@@ -335,7 +335,7 @@ export default function ProductsPage() {
                       Active Products
                     </Typography>
                     <Typography variant="h4">
-                      {products.filter(p => p.status === 'active').length}
+                      {products.filter(p => p.is_active).length}
                     </Typography>
                   </Box>
                   <CheckCircle color="success" sx={{ fontSize: 40 }} />
@@ -523,10 +523,10 @@ export default function ProductsPage() {
                           </TableCell>
                           <TableCell>
                             <Chip
-                              label={product.status === 'active' ? 'Active' : 'Inactive'}
+                              label={product.is_active ? 'Active' : 'Inactive'}
                               size="small"
-                              color={product.status === 'active' ? 'success' : 'default'}
-                              variant={product.status === 'active' ? 'filled' : 'outlined'}
+                              color={product.is_active ? 'success' : 'default'}
+                              variant={product.is_active ? 'filled' : 'outlined'}
                             />
                           </TableCell>
                           <TableCell align="right">
@@ -560,10 +560,10 @@ export default function ProductsPage() {
           </MenuItem>
           <MenuItem onClick={() => selectedProduct && handleToggleStatus(selectedProduct)}>
             <ListItemIcon>
-              {selectedProduct?.status === 'active' ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+              {selectedProduct?.is_active ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
             </ListItemIcon>
             <ListItemText>
-              {selectedProduct?.status === 'active' ? 'Deactivate' : 'Activate'}
+              {selectedProduct?.is_active ? 'Deactivate' : 'Activate'}
             </ListItemText>
           </MenuItem>
           <MenuItem onClick={() => selectedProduct && handleDelete(selectedProduct)}>

@@ -232,7 +232,7 @@ export default function EmployeesPage() {
   // Calculate summary statistics
   const totalEmployees = employees.length
   const activeEmployees = employees.filter(e => e.status === 'active').length
-  const departments = [...new Set(employees.map(e => e.department))]
+  const departments = Array.from(new Set(employees.map(e => e.department)))
   const avgSalary = employees.reduce((sum, e) => sum + e.salary, 0) / employees.length
 
   return (

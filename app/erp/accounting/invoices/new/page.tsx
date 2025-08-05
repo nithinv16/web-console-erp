@@ -214,22 +214,27 @@ export default function NewInvoicePage() {
     }))
   }
 
-  const handleCustomerSelect = (customer: Customer | null) => {
-    setSelectedCustomer(customer)
-    if (customer) {
-      setInvoiceData(prev => ({
-        ...prev,
-        customerName: customer.name,
-        customerEmail: customer.email,
-        customerPhone: customer.phone,
-        customerAddress: customer.address || {
-          street: '',
-          city: '',
-          state: '',
-          pincode: '',
-          country: 'India'
-        }
-      }))
+  const handleCustomerSelect = (customer: Customer | string | null) => {
+    if (typeof customer === 'string') {
+      setSelectedCustomer(null)
+      setInvoiceData(prev => ({ ...prev, customerName: customer }))
+    } else {
+      setSelectedCustomer(customer)
+      if (customer) {
+        setInvoiceData(prev => ({
+          ...prev,
+          customerName: customer.name,
+          customerEmail: customer.email,
+          customerPhone: customer.phone,
+          customerAddress: customer.address || {
+            street: '',
+            city: '',
+            state: '',
+            pincode: '',
+            country: 'India'
+          }
+        }))
+      }
     }
   }
 
@@ -560,7 +565,10 @@ export default function NewInvoicePage() {
                 <Grid item xs={12}>
                   <Autocomplete
                     options={customers}
-                    getOptionLabel={(option) => option.name}
+                    getOptionLabel={(option) => {
+                      if (typeof option === 'string') return option;
+                      return option?.name || '';
+                    }}
                     value={selectedCustomer}
                     onChange={(_, newValue) => handleCustomerSelect(newValue)}
                     renderInput={(params) => (

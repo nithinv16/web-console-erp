@@ -29,8 +29,7 @@ import {
   MenuItem,
   Chip,
   Tab,
-  Tabs,
-  TabPanel
+  Tabs
 } from '@mui/material'
 import {
   Settings,

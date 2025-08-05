@@ -146,7 +146,7 @@ export default function MainLayout({ children, title }: MainLayoutProps) {
               sx={{ ml: 1 }}
             >
               <Avatar
-                src={sellerDetails?.image_url}
+                src={sellerDetails?.profile_image_url}
                 sx={{ width: 32, height: 32 }}
               >
                 {sellerDetails?.business_name?.[0] || user?.email?.[0]?.toUpperCase()}

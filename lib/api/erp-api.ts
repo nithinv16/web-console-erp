@@ -1,5 +1,5 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/database'
+import { Database } from '../../types/database'
 import type {
   ERPCompany,
   ERPProduct,
@@ -11,7 +11,7 @@ import type {
   ERPInventory,
   ERPInventoryTransaction,
   ERPPayment
-} from '@/types/database'
+} from '../../types/database'
 
 export interface CreateCompanyData {
   name: string
@@ -716,7 +716,7 @@ export class ERPApi {
 
     const totalRevenue = revenue.data?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0
     const lowStockCount = lowStock.data?.filter(inv => 
-      inv.quantity <= (inv.product?.min_stock_level || 0)
+      (inv.quantity || 0) <= ((inv.product as any)?.min_stock_level || 0)
     ).length || 0
 
     return {

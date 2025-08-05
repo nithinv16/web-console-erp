@@ -104,30 +104,29 @@ export default function ManufacturingPage() {
     try {
       setLoading(true)
       
-      // Fetch dashboard data
-      const dashboard = await ManufacturingApi.getDashboardData()
-      setDashboardData(dashboard)
+      // Manufacturing API is currently disabled, using fallback data
+      try {
+        const dashboard = await ManufacturingApi.getDashboardData()
+        setDashboardData(dashboard)
+      } catch (err) {
+        // Manufacturing API disabled, use fallback data
+        setDashboardData({
+          activeOrders: 0,
+          orderGrowth: 0,
+          efficiency: 0,
+          qualityRate: 0,
+          passedChecks: 0,
+          activeWorkCenters: 0,
+          totalWorkCenters: 0
+        })
+      }
       
-      // Fetch recent data
-      const [
-        productionOrdersData,
-        workOrdersData,
-        bomsData,
-        workCentersData,
-        qualityChecksData
-      ] = await Promise.all([
-        ManufacturingApi.getProductionOrders({ limit: 10 }),
-        ManufacturingApi.getWorkOrders({ limit: 10 }),
-        ManufacturingApi.getBOMs({ limit: 10 }),
-        ManufacturingApi.getWorkCenters({ limit: 10 }),
-        ManufacturingApi.getQualityChecks({ limit: 10 })
-      ])
-      
-      setProductionOrders(productionOrdersData.data || [])
-      setWorkOrders(workOrdersData.data || [])
-      setBoms(bomsData.data || [])
-      setWorkCenters(workCentersData.data || [])
-      setQualityChecks(qualityChecksData.data || [])
+      // Set empty arrays for disabled manufacturing features
+      setProductionOrders([])
+      setWorkOrders([])
+      setBoms([])
+      setWorkCenters([])
+      setQualityChecks([])
       
     } catch (err) {
       console.error('Error fetching manufacturing data:', err)

@@ -1,5 +1,7 @@
-import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Database } from '../../types/database';
+
+const supabase = createClientComponentClient<Database>();
 
 // Types for Quality Management
 export interface QualityInspection {
@@ -261,7 +263,7 @@ export interface QualityAnalytics {
   inspection_summary: Array<{ type: string; total: number; passed: number; failed: number; pass_rate: number }>;
 }
 
-class QualityManagementApi {
+export class QualityManagementApi {
   // Quality Inspections
   async getInspections(companyId: string, filters?: QualityFilters) {
     let query = supabase

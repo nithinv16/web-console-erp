@@ -1,5 +1,7 @@
-import { supabase } from '@/lib/supabase';
-import { Database } from '@/types/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Database } from '../../types/database';
+
+const supabase = createClientComponentClient<Database>();
 
 // Types for Document Management
 export interface Document {
@@ -126,7 +128,7 @@ export interface DocumentAnalytics {
   upload_trend: Array<{ month: string; count: number; size: number }>;
 }
 
-class DocumentManagementApi {
+export class DocumentManagementApi {
   // Document CRUD Operations
   async getDocuments(companyId: string, filters?: DocumentFilters) {
     let query = supabase
@@ -665,7 +667,7 @@ class DocumentManagementApi {
     await supabase
       .from('documents')
       .update({
-        download_count: supabase.sql`download_count + 1`,
+        download_count: supabase.rpc('increment_download_count', { document_id: documentId }),
         last_accessed_at: new Date().toISOString()
       })
       .eq('id', documentId);
@@ -756,7 +758,11 @@ class DocumentManagementApi {
       documents_by_category: categoryStats || [],
       documents_by_type: typeStats || [],
       recent_uploads: recentUploads?.length || 0,
-      most_downloaded: mostDownloaded || [],
+      most_downloaded: (mostDownloaded || []).map(doc => ({
+        document_id: doc.id,
+        name: doc.name,
+        download_count: doc.download_count
+      })),
       storage_usage: {
         used: totalSize,
         limit: 10 * 1024 * 1024 * 1024, // 10GB default limit

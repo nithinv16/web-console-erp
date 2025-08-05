@@ -1,11 +1,11 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/database'
+import { Database } from '../../types/database'
 import type {
   ERPInventory,
   ERPInventoryTransaction,
   ERPProduct,
   ERPWarehouse
-} from '@/types/database'
+} from '../../types/database'
 
 export interface CreateWarehouseData {
   company_id: string
@@ -184,7 +184,7 @@ export class InventoryApi {
     }
     
     if (filters?.low_stock_only) {
-      query = query.lt('quantity', this.supabase.sql`product.min_stock_level`)
+      query = query.lt('quantity', 'product.min_stock_level')
     }
     
     if (filters?.out_of_stock_only) {
@@ -516,13 +516,13 @@ export class InventoryApi {
     const categoryMap = new Map<string, { value: number, quantity: number }>()
     
     inventory?.forEach(inv => {
-      const value = inv.quantity * (inv.product?.cost_price || 0)
+      const value = inv.quantity * ((inv.product as any)?.cost_price || 0)
       totalValue += value
       totalQuantity += inv.quantity
       
       // By warehouse
-      const warehouseId = inv.warehouse?.id || ''
-      const warehouseName = inv.warehouse?.name || 'Unknown'
+      const warehouseId = (inv.warehouse as any)?.id || ''
+      const warehouseName = (inv.warehouse as any)?.name || 'Unknown'
       if (!warehouseMap.has(warehouseId)) {
         warehouseMap.set(warehouseId, { name: warehouseName, value: 0, quantity: 0 })
       }
@@ -531,7 +531,7 @@ export class InventoryApi {
       warehouseData.quantity += inv.quantity
       
       // By category
-      const categoryId = inv.product?.category_id || ''
+      const categoryId = (inv.product as any)?.category_id || ''
       if (!categoryMap.has(categoryId)) {
         categoryMap.set(categoryId, { value: 0, quantity: 0 })
       }
@@ -630,11 +630,11 @@ export class InventoryApi {
       const productId = txn.product_id
       if (!productMovements.has(productId)) {
         productMovements.set(productId, {
-          name: txn.product?.name || 'Unknown',
+          name: (txn.product as any)?.name || 'Unknown',
           stockIn: 0,
           stockOut: 0,
           adjustments: 0,
-          cost_price: txn.product?.cost_price || 0
+          cost_price: (txn.product as any)?.cost_price || 0
         })
       }
       
@@ -688,7 +688,7 @@ export class InventoryApi {
         warehouse:warehouses(name)
       `)
       .eq('company_id', companyId)
-      .lt('quantity', this.supabase.sql`product.min_stock_level`)
+      .lt('quantity', 'product.min_stock_level')
     
     if (warehouseId) {
       query = query.eq('warehouse_id', warehouseId)
@@ -699,10 +699,10 @@ export class InventoryApi {
     
     return data?.map(inv => ({
       product_id: inv.product_id,
-      product_name: inv.product?.name || 'Unknown',
+      product_name: (inv.product as any)?.name || 'Unknown',
       current_stock: inv.quantity,
-      min_stock_level: inv.product?.min_stock_level || 0,
-      warehouse_name: inv.warehouse?.name || 'Unknown'
+      min_stock_level: (inv.product as any)?.min_stock_level || 0,
+      warehouse_name: (inv.warehouse as any)?.name || 'Unknown'
     })) || []
   }
 
@@ -730,8 +730,8 @@ export class InventoryApi {
     
     return data?.map(inv => ({
       product_id: inv.product_id,
-      product_name: inv.product?.name || 'Unknown',
-      warehouse_name: inv.warehouse?.name || 'Unknown'
+      product_name: (inv.product as any)?.name || 'Unknown',
+      warehouse_name: (inv.warehouse as any)?.name || 'Unknown'
     })) || []
   }
 }

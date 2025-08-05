@@ -1,7 +1,7 @@
-import { createClient } from '../supabase';
-
-const supabase = createClient();
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Database } from '../../types/database';
+
+const supabase = createClientComponentClient<Database>();
 
 type Employee = Database['public']['Tables']['employees']['Row'];
 type Department = Database['public']['Tables']['departments']['Row'];
@@ -659,7 +659,7 @@ export class HRApi {
 
     const topDepartments = Object.entries(departmentCounts)
       .map(([department_name, employee_count]) => ({ department_name, employee_count }))
-      .sort((a, b) => b.employee_count - a.employee_count)
+      .sort((a, b) => (b.employee_count as number) - (a.employee_count as number))
       .slice(0, 5);
 
     // Salary distribution
@@ -694,7 +694,7 @@ export class HRApi {
       attendance_rate: Math.round(attendanceRate),
       leave_requests_pending: pendingLeaves || 0,
       employee_turnover_rate: employeeTurnoverRate,
-      top_departments: topDepartments,
+      top_departments: topDepartments as Array<{department_name: string; employee_count: number}>,
       salary_distribution: salaryDistribution,
       monthly_attendance_trend: monthlyAttendanceTrend
     };

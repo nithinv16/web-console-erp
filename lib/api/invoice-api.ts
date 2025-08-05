@@ -1,10 +1,10 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/database'
+import { Database } from '../../types/database'
 import type {
   ERPInvoice,
   ERPPayment,
   ERPSalesOrder
-} from '@/types/database'
+} from '../../types/database'
 
 export interface CreateInvoiceData {
   company_id: string
@@ -230,7 +230,7 @@ export class InvoiceApi {
       due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
       payment_terms: salesOrder.payment_terms,
       notes: salesOrder.notes,
-      items: salesOrder.items?.map(item => ({
+      items: salesOrder.items?.map((item: { product_id: string; product?: { name: string }; quantity: number; unit_price: number; tax_rate?: number }) => ({
         product_id: item.product_id,
         description: item.product?.name,
         quantity: item.quantity,
@@ -446,7 +446,7 @@ export class InvoiceApi {
             paid_amount: Math.max(0, newPaidAmount),
             balance_amount: newBalanceAmount,
             status: newStatus,
-            payment_date: newStatus === 'paid' ? null : invoice.payment_date
+            payment_date: null // Reset payment date when payment is deleted
           })
           .eq('id', payment.invoice_id)
       }

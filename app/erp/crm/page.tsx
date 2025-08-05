@@ -96,22 +96,31 @@ export default function CRMPage() {
     try {
       setLoading(true)
       
+      // Get company_id - first check if company exists, if not use default
+      const { data: companies, error: companyError } = await supabase
+        .from('companies')
+        .select('id')
+        .limit(1)
+        .single()
+      
+      const companyId = companies?.id || '1'
+      
       // Fetch dashboard data
-      const dashboard = await CRMApi.getDashboardData()
+      const dashboard = await CRMApi.getDashboardData(companyId)
       setDashboardData(dashboard)
       
       // Fetch recent data
       const [customersData, leadsData, opportunitiesData, activitiesData] = await Promise.all([
-        CRMApi.getCustomers({ limit: 10 }),
-        CRMApi.getLeads({ limit: 10 }),
-        CRMApi.getOpportunities({ limit: 10 }),
-        CRMApi.getActivities({ limit: 10 })
+        CRMApi.getCustomers(companyId, {}),
+        CRMApi.getLeads(companyId, {}),
+        CRMApi.getOpportunities(companyId, {}),
+        CRMApi.getActivities(companyId, {})
       ])
       
-      setCustomers(customersData.data || [])
-      setLeads(leadsData.data || [])
-      setOpportunities(opportunitiesData.data || [])
-      setActivities(activitiesData.data || [])
+      setCustomers(customersData?.data || [])
+      setLeads(leadsData || [])
+      setOpportunities(opportunitiesData || [])
+      setActivities(activitiesData || [])
       
     } catch (err) {
       console.error('Error fetching CRM data:', err)

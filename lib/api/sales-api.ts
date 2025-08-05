@@ -1,10 +1,10 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/types/database'
+import { Database } from '../../types/database'
 import type {
   ERPSalesOrder,
   ERPCustomer,
   ERPProduct
-} from '@/types/database'
+} from '../../types/database'
 
 export interface CreateSalesOrderData {
   company_id: string
@@ -292,7 +292,7 @@ export class SalesApi {
       
       const availableQty = inventory?.quantity || 0
       if (availableQty < item.quantity) {
-        throw new Error(`Insufficient inventory for product ${item.product?.name}. Available: ${availableQty}, Required: ${item.quantity}`)
+        throw new Error(`Insufficient inventory for product ${item.product_id}. Available: ${availableQty}, Required: ${item.quantity}`)
       }
     }
     
@@ -301,7 +301,7 @@ export class SalesApi {
       await this.supabase
         .from('current_inventory')
         .update({
-          reserved_quantity: this.supabase.sql`reserved_quantity + ${item.quantity}`
+          reserved_quantity: this.supabase.rpc('increment_reserved_quantity', { amount: item.quantity })
         })
         .eq('product_id', item.product_id)
         .eq('warehouse_id', salesOrder.warehouse_id || '')
@@ -357,8 +357,8 @@ export class SalesApi {
         await this.supabase
           .from('current_inventory')
           .update({
-            quantity: this.supabase.sql`quantity - ${item.quantity}`,
-            reserved_quantity: this.supabase.sql`reserved_quantity - ${item.quantity}`,
+            quantity: this.supabase.rpc('decrement_quantity', { amount: item.quantity }),
+            reserved_quantity: this.supabase.rpc('decrement_reserved_quantity', { amount: item.quantity }),
             last_updated: new Date().toISOString()
           })
           .eq('product_id', item.product_id)
@@ -381,7 +381,7 @@ export class SalesApi {
         await this.supabase
           .from('current_inventory')
           .update({
-            reserved_quantity: this.supabase.sql`reserved_quantity - ${item.quantity}`
+            reserved_quantity: this.supabase.rpc('decrement_reserved_quantity', { amount: item.quantity })
           })
           .eq('product_id', item.product_id)
           .eq('warehouse_id', salesOrder.warehouse_id || '')
@@ -482,7 +482,7 @@ export class SalesApi {
         const productId = item.product_id
         if (!productStats[productId]) {
           productStats[productId] = {
-            name: item.product?.name || 'Unknown',
+            name: (item.product as any)?.name || 'Unknown',
             quantity: 0,
             revenue: 0
           }

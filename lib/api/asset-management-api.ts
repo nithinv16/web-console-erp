@@ -1,4 +1,7 @@
-import { supabase } from '@/lib/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import type { Database } from '../../types/database';
+
+const supabase = createClientComponentClient<Database>();
 
 // Asset Management Interfaces
 export interface Asset {
@@ -673,11 +676,11 @@ export class AssetManagementApi {
     // Get basic asset counts and values
     const { data: assetStats } = await supabase
       .from('assets')
-      .select('status, category, location, current_value, purchase_date')
+      .select('id, status, category, location, current_value, purchase_date, name')
       .eq('company_id', companyId);
 
     const totalAssets = assetStats?.length || 0;
-    const totalValue = assetStats?.reduce((sum, asset) => sum + asset.current_value, 0) || 0;
+    const totalValue = assetStats?.reduce((sum: number, asset: any) => sum + asset.current_value, 0) || 0;
     const activeAssets = assetStats?.filter(a => a.status === 'active').length || 0;
     const inactiveAssets = assetStats?.filter(a => a.status === 'inactive').length || 0;
     const underMaintenance = assetStats?.filter(a => a.status === 'under_maintenance').length || 0;
@@ -685,7 +688,7 @@ export class AssetManagementApi {
 
     // Calculate average age
     const currentDate = new Date();
-    const totalAge = assetStats?.reduce((sum, asset) => {
+    const totalAge = assetStats?.reduce((sum: number, asset: any) => {
       const purchaseDate = new Date(asset.purchase_date);
       const ageInYears = (currentDate.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
       return sum + ageInYears;
@@ -696,9 +699,9 @@ export class AssetManagementApi {
     const { data: depreciationData } = await supabase
       .from('asset_depreciation')
       .select('accumulated_depreciation')
-      .in('asset_id', assetStats?.map(a => a.id) || []);
+      .in('asset_id', assetStats?.map((a: any) => a.id) || []);
 
-    const totalDepreciation = depreciationData?.reduce((sum, dep) => sum + dep.accumulated_depreciation, 0) || 0;
+    const totalDepreciation = depreciationData?.reduce((sum: number, dep: any) => sum + dep.accumulated_depreciation, 0) || 0;
 
     // Get maintenance cost YTD
     const currentYear = new Date().getFullYear();
@@ -709,10 +712,10 @@ export class AssetManagementApi {
       .lte('scheduled_date', `${currentYear}-12-31`)
       .eq('status', 'completed');
 
-    const maintenanceCostYtd = maintenanceData?.reduce((sum, m) => sum + m.cost, 0) || 0;
+    const maintenanceCostYtd = maintenanceData?.reduce((sum: number, m: any) => sum + m.cost, 0) || 0;
 
     // Assets by category
-    const assetsByCategory = assetStats?.reduce((acc, asset) => {
+    const assetsByCategory = assetStats?.reduce((acc: { category: string; count: number; value: number }[], asset: any) => {
       const existing = acc.find(item => item.category === asset.category);
       if (existing) {
         existing.count++;
@@ -724,7 +727,7 @@ export class AssetManagementApi {
     }, [] as { category: string; count: number; value: number }[]) || [];
 
     // Assets by location
-    const assetsByLocation = assetStats?.reduce((acc, asset) => {
+    const assetsByLocation = assetStats?.reduce((acc: { location: string; count: number; value: number }[], asset: any) => {
       const existing = acc.find(item => item.location === asset.location);
       if (existing) {
         existing.count++;
@@ -745,9 +748,9 @@ export class AssetManagementApi {
 
     // Top value assets
     const topValueAssets = assetStats
-      ?.sort((a, b) => b.current_value - a.current_value)
+      ?.sort((a: any, b: any) => b.current_value - a.current_value)
       .slice(0, 10)
-      .map(asset => ({
+      .map((asset: any) => ({
         id: asset.id,
         name: asset.name,
         current_value: asset.current_value
@@ -792,7 +795,7 @@ export class AssetManagementApi {
 
     if (error) throw error;
     
-    const uniqueCategories = [...new Set(data.map(item => item.category))];
+    const uniqueCategories = Array.from(new Set(data.map((item: any) => item.category)));
     return uniqueCategories;
   }
 
@@ -805,7 +808,7 @@ export class AssetManagementApi {
 
     if (error) throw error;
     
-    const uniqueLocations = [...new Set(data.map(item => item.location))];
+    const uniqueLocations = Array.from(new Set(data.map((item: any) => item.location)));
     return uniqueLocations;
   }
 

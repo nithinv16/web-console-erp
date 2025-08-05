@@ -226,7 +226,7 @@ export default function SuppliersPage() {
   const totalValue = suppliers.reduce((sum, s) => sum + s.total_value, 0)
   const avgRating = suppliers.reduce((sum, s) => sum + s.rating, 0) / suppliers.length
 
-  const categories = [...new Set(suppliers.map(s => s.category))]
+  const categories = Array.from(new Set(suppliers.map(s => s.category)))
 
   return (
     <Box sx={{ p: 3 }}>

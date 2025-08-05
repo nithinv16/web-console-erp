@@ -136,7 +136,7 @@ export default function InvoicesPage() {
       
       // Apply filters
       if (filters.search) {
-        query = query.or(`invoice_number.ilike.%${filters.search}%,reference_number.ilike.%${filters.search}%`)
+        query = query.or(`invoice_number.ilike.%${filters.search}%`)
       }
       
       if (filters.status) {
@@ -155,8 +155,34 @@ export default function InvoicesPage() {
         query = query.lte('invoice_date', filters.dateTo)
       }
       
-      // Get total count
-      const { count } = await query.select('*', { count: 'exact', head: true })
+      // Get total count with same filters
+      let countQuery = supabase
+        .from('invoices')
+        .select('*', { count: 'exact', head: true })
+        .eq('company_id', companies.id)
+      
+      // Apply same filters to count query
+      if (filters.search) {
+        countQuery = countQuery.or(`invoice_number.ilike.%${filters.search}%`)
+      }
+      
+      if (filters.status) {
+        countQuery = countQuery.eq('status', filters.status)
+      }
+      
+      if (filters.customer) {
+        countQuery = countQuery.eq('customer_id', filters.customer)
+      }
+      
+      if (filters.dateFrom) {
+        countQuery = countQuery.gte('invoice_date', filters.dateFrom)
+      }
+      
+      if (filters.dateTo) {
+        countQuery = countQuery.lte('invoice_date', filters.dateTo)
+      }
+      
+      const { count } = await countQuery
       setTotalCount(count || 0)
       
       // Get paginated results
@@ -776,8 +802,8 @@ export default function InvoicesPage() {
             <div class="invoice-title">INVOICE</div>
             <div class="company-info">
               <div><strong>${company.name || 'Company Name'}</strong></div>
-              <div>${companyAddress.street || company.address || 'Company Address'}</div>
-              <div>${companyAddress.city || 'City'}, ${companyAddress.state || 'State'} ${companyAddress.postal_code || companyAddress.zip || 'Postal Code'}</div>
+              <div>${(companyAddress as any)?.street || company.address || 'Company Address'}</div>
+              <div>${(companyAddress as any)?.city || 'City'}, ${(companyAddress as any)?.state || 'State'} ${(companyAddress as any)?.postal_code || 'Postal Code'}</div>
               <div>Phone: ${company.phone || 'N/A'}</div>
               <div>Email: ${company.email || 'N/A'}</div>
               <div>GST: ${company.gst_number || company.tax_id || 'N/A'}</div>
@@ -841,7 +867,7 @@ export default function InvoicesPage() {
               <div class="invoice-title">INVOICE</div>
               <div><strong>${company.name || 'Company Name'}</strong></div>
               <div>${company.tagline || company.description || 'Your Business Partner'}</div>
-              <div>📍 ${companyAddress.street || company.address || 'Company Address'}, ${companyAddress.city || 'City'}, ${companyAddress.state || 'State'} ${companyAddress.postal_code || companyAddress.zip || 'Postal Code'}</div>
+              <div>📍 ${(companyAddress as any)?.street || company.address || 'Company Address'}, ${(companyAddress as any)?.city || 'City'}, ${(companyAddress as any)?.state || 'State'} ${(companyAddress as any)?.postal_code || 'Postal Code'}</div>
               <div>📞 ${company.phone || 'N/A'} | ✉️ ${company.email || 'company@email.com'}</div>
               <div>🏢 GST: ${company.gst_number || company.tax_id || 'N/A'}</div>
             </div>
@@ -1158,11 +1184,7 @@ export default function InvoicesPage() {
                       <Typography variant="subtitle2">
                         {invoice.invoice_number}
                       </Typography>
-                      {invoice.reference_number && (
-                        <Typography variant="body2" color="text.secondary">
-                          Ref: {invoice.reference_number}
-                        </Typography>
-                      )}
+
                     </Box>
                   </TableCell>
                   <TableCell>

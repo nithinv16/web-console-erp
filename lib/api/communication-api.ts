@@ -1,4 +1,7 @@
-import { supabase } from '@/lib/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { Database } from '../../types/database';
+
+const supabase = createClientComponentClient<Database>();
 
 // Types and Interfaces
 export interface Email {

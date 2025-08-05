@@ -180,8 +180,8 @@ export default function ERPDashboard() {
               gst_number: sellerDetails.gst_number || '',
               registration_number: sellerDetails.registration_number || '',
               address: sellerDetails.address || {},
-              phone: sellerDetails.contact_phone || '',
-              email: sellerDetails.contact_email || user.email || '',
+              phone: '',
+              email: user.email || '',
               subscription_plan: 'basic',
               subscription_status: 'active',
               settings: {}

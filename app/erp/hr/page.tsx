@@ -58,6 +58,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { Database } from '@/types/database'
 import { useRouter } from 'next/navigation'
 import { HRApi } from '@/lib/api/hr-api'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -93,6 +94,7 @@ export default function HRPage() {
   
   const supabase = createClientComponentClient<Database>()
   const router = useRouter()
+  const { user } = useAuth()
 
   useEffect(() => {
     fetchDashboardData()
@@ -102,24 +104,33 @@ export default function HRPage() {
     try {
       setLoading(true)
       
+      // Get company_id - first check if company exists, if not use default
+      const { data: companies, error: companyError } = await supabase
+        .from('companies')
+        .select('id')
+        .limit(1)
+        .single()
+      
+      const companyId = companies?.id || '1'
+      
       // Fetch dashboard data
-      const dashboard = await HRApi.getDashboardData()
+      const dashboard = await HRApi.getDashboardData(companyId)
       setDashboardData(dashboard)
       
       // Fetch recent data
       const [employeesData, departmentsData, attendanceData, payrollData, leaveData] = await Promise.all([
-        HRApi.getEmployees({ limit: 10 }),
-        HRApi.getDepartments({ limit: 10 }),
-        HRApi.getAttendanceRecords({ limit: 10 }),
-        HRApi.getPayrollRecords({ limit: 10 }),
-        HRApi.getLeaveRequests({ limit: 10 })
+        HRApi.getEmployees(companyId),
+        HRApi.getDepartments(companyId),
+        HRApi.getAttendance(companyId),
+        HRApi.getPayroll(companyId),
+        HRApi.getLeaveRequests(companyId)
       ])
       
-      setEmployees(employeesData.data || [])
-      setDepartments(departmentsData.data || [])
-      setAttendance(attendanceData.data || [])
-      setPayroll(payrollData.data || [])
-      setLeaveRequests(leaveData.data || [])
+      setEmployees(employeesData || [])
+      setDepartments(departmentsData || [])
+      setAttendance(attendanceData || [])
+      setPayroll(payrollData || [])
+      setLeaveRequests(leaveData || [])
       
     } catch (err) {
       console.error('Error fetching HR data:', err)

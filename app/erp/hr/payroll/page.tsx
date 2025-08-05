@@ -209,8 +209,8 @@ export default function PayrollPage() {
   const paidRecords = payrollRecords.filter(r => r.status === 'paid').length
   const pendingRecords = payrollRecords.filter(r => r.status === 'draft' || r.status === 'processed').length
 
-  const departments = [...new Set(payrollRecords.map(r => r.department))]
-  const payPeriods = [...new Set(payrollRecords.map(r => r.pay_period))]
+  const departments = Array.from(new Set(payrollRecords.map(r => r.department)))
+  const payPeriods = Array.from(new Set(payrollRecords.map(r => r.pay_period)))
 
   return (
     <Box sx={{ p: 3 }}>
